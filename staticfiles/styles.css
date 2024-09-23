@@ -1,0 +1,32 @@
+body {
+  background: skyblue;
+  color: white;
+}
+
+div {
+  color: white;
+  border: 1px solid pink;
+  margin: 10px;
+  padding: 10px;
+}
+
+table {
+  border: 1px solid;
+}
+
+td {
+  border: 1px solid;
+  text-align: center;
+}
+
+th {
+  color: black;
+}
+
+h1 {
+  color: black;
+}
+
+h2 {
+  color: black;
+}
