@@ -1,0 +1,35 @@
+<!-- quotes/templates/quotes/base.html 
+ A template with common HTML code that will be re-used by 
+ all of the other templates.
+ -->
+
+{% load static %}
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Famous Quotes{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+
+<body>
+  <header>
+    <h1>Famous Quotes</h1>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="{% url 'quote' %}">Home</a></li>
+      <li><a href="{% url 'show_all' %}">All Quotes</a></li>
+      <li><a href="{% url 'about' %}">About</a></li>
+    </ul>
+  </nav>
+
+  <div class="content">
+    {% block content %}
+    <!-- fill in this section with specific page detail -->
+    {% endblock %}
+  </div>
+</body>
+
+</html>
