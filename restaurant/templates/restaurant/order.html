@@ -1,0 +1,60 @@
+{% extends 'restaurant/base.html' %}
+
+{% block title %}Order Page{% endblock %}
+
+{% block content %}
+<h2>Place Your Order</h2>
+
+<form action="{% url 'confirmation_page' %}" method="POST">
+  {% csrf_token %}
+
+  <h3>Menu</h3>
+  <label>
+    <input type="checkbox" name="items" value="Grilled Salmon with Garlic Butter">
+    Grilled Salmon with Garlic Butter - $20
+  </label><br>
+
+  <label>
+    <input type="checkbox" name="items" value="Spaghetti Bolognese">
+    Spaghetti Bolognese - $15
+  </label><br>
+
+  <label>
+    <input type="checkbox" name="items" value="Chicken Caesar Salad">
+    Chicken Caesar Salad - $12
+  </label><br>
+
+  <label>
+    <input type="checkbox" name="items" value="{{ daily_special }}">
+    Daily Special: {{ daily_special }} - $17
+  </label><br>
+
+  <!-- Item with options (e.g., pizza with toppings) -->
+  <label>
+    <input type="checkbox" name="items" value="Pizza">
+    Pizza - $18
+  </label><br>
+  <label for="toppings">Choose your toppings:</label>
+  <select id="toppings" name="toppings" multiple>
+    <option value="pepperoni">Pepperoni</option>
+    <option value="mushrooms">Mushrooms</option>
+    <option value="onions">Onions</option>
+    <option value="olives">Olives</option>
+  </select><br>
+
+  <h3>Special Instructions:</h3>
+  <textarea name="special_instructions" rows="4" cols="50"></textarea><br>
+
+  <h3>Customer Information</h3>
+  <label for="name">Name:</label>
+  <input type="text" id="name" name="name" required><br>
+
+  <label for="phone">Phone:</label>
+  <input type="tel" id="phone" name="phone" required><br>
+
+  <label for="email">Email:</label>
+  <input type="email" id="email" name="email" required><br>
+
+  <button type="submit">Submit Order</button>
+</form>
+{% endblock %}

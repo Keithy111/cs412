@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Restaurant{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+
+<body>
+  <header>
+    <h1>Trattoria</h1>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="{% url 'main_page' %}">Home</a></li>
+      <li><a href="{% url 'order_page' %}">Order</a></li>
+    </ul>
+  </nav>
+
+  <div class="content">
+    {% block content %}
+    <!-- Page-specific content goes here -->
+    {% endblock %}
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Trattoria, All rights reserved.</p>
+  </footer>
+</body>
+
+</html>

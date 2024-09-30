@@ -1,0 +1,16 @@
+{% extends 'restaurant/base.html' %}
+{% load static %}
+
+{% block title %}Main Page{% endblock %}
+
+{% block content %}
+<h2>Welcome!</h2>
+<p>Location: 123 Food Street, Flavor Town</p>
+<p>Hours of Operation:</p>
+<ul>
+  <li>Monday - Friday: 10 AM - 10 PM</li>
+  <li>Saturday: 9 AM - 11 PM</li>
+  <li>Sunday: 9 AM - 9 PM</li>
+</ul>
+<img src="{% static 'image.jpg' %}" alt="Our Restaurant Photo" />
+{% endblock %}
