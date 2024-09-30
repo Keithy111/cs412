@@ -1,8 +1,34 @@
+/* Overall page styles */
 body {
   background: skyblue;
   color: white;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  /* 100% of the viewport height */
+  text-align: center;
 }
 
+/* Centering content inside a container */
+.container {
+  width: 80%;
+  /* or any percentage/px value you'd prefer */
+  max-width: 1200px;
+  /* sets a maximum width for the container */
+  margin: 0 auto;
+  /* horizontally center the container */
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.2);
+  /* semi-transparent background for readability */
+  border-radius: 8px;
+  /* optional, for rounded corners */
+}
+
+/* Div styles */
 div {
   color: white;
   border: 1px solid pink;
@@ -10,23 +36,31 @@ div {
   padding: 10px;
 }
 
+/* Table styles */
 table {
   border: 1px solid;
+  width: 100%;
+  /* Ensure table stretches across the container */
+  margin: 10px 0;
+  /* Add some space around the table */
 }
 
-td {
+/* Table cell styles */
+td,
+th {
   border: 1px solid;
   text-align: center;
+  padding: 10px;
 }
 
-th {
-  color: black;
-}
-
-h1 {
-  color: black;
-}
-
+/* Headers */
+h1,
 h2 {
+  color: black;
+}
+
+/* Footer styles (if you have a footer) */
+footer {
+  margin-top: 20px;
   color: black;
 }
