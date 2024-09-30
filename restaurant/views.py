@@ -35,6 +35,7 @@ def confirmation_page(request):
     if request.method == 'POST':
         # Retrieve the order details from the form
         items_ordered = request.POST.getlist('items')  # assuming 'items' is a list of item names in the form
+        pizza_topping = request.POST.get('toppings')  # Selected topping for pizza
         customer_name = request.POST.get('name')
         customer_phone = request.POST.get('phone')
 
@@ -68,6 +69,7 @@ def confirmation_page(request):
             'customer_name': customer_name,
             'customer_phone': customer_phone,
             'items_ordered': items_ordered,
+            'pizza_topping': pizza_topping,  
             'total_price': total_price,
             'ready_time': ready_time,  # Ready time in HH:MM format
         }

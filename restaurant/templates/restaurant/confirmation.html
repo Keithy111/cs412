@@ -15,6 +15,10 @@
   {% endfor %}
 </ul>
 
+{% if pizza_topping %}
+<p>Pizza Topping: {{ pizza_topping }}</p>
+{% endif %}
+
 <p>Total Price: ${{ total_price }}</p>
 
 <p>Your order will be ready by {{ ready_time }}.</p>
