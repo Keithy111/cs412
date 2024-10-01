@@ -27,6 +27,7 @@ urlpatterns = [
     path("quotes/", include ("quotes.urls")),
     path("formdata/", include ("formdata.urls")), ## formdata 
     path("restaurant/", include ("restaurant.urls")), #hw 4
-
+    path("blog/", include ("blog.urls")), ## blog
+    
 ] + static(settings.STATIC_URL,
            document_root=settings.STATIC_ROOT)
