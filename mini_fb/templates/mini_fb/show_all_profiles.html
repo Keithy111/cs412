@@ -1,0 +1,25 @@
+{% extends 'mini_fb/base.html' %}
+
+{% block content %}
+<h1>Showing all Profiles</h1>
+<main class="grid-container">
+  {% for profile in profiles %}
+  <article>
+    <!-- Display the profile picture if available -->
+    {% if profile.profile_url %}
+    <img src="{{ profile.profile_url }}" alt="{{ profile.Fname }}'s profile picture">
+    {% endif %}
+
+    <div>
+      <!-- Display the full name -->
+      <h2>{{ profile.Fname }} {{ profile.Lname }}</h2>
+
+      <!-- Display the city and email -->
+      <strong>City: {{ profile.city }}</strong><br>
+      <strong>Email: {{ profile.email }}</strong><br>
+      <strong>Address: {{ profile.address }}</strong>
+    </div>
+  </article>
+  {% endfor %}
+</main>
+{% endblock %}

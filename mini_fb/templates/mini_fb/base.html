@@ -1,0 +1,21 @@
+<!-- templates/base.html -->
+<!-- mini_fb/templates/mini_fb/base.html -->
+{% load static %}
+<html>
+
+<head>
+  <title>Facebook Replica!</title>
+  <link rel="stylesheet" href="{% static 'styles-blog.css' %}">
+</head>
+
+<body>
+  <header>
+    <h1>Facebook Replica!</h1>
+  </header>
+
+  {% block content %}
+  {% endblock %}
+
+</body>
+
+</html>
