@@ -1,3 +1,5 @@
+# Author: Keith Yeung 
+# Email: keithy@bu.edu 
 ## mini_fb/urls.py
 
 from django.urls import path

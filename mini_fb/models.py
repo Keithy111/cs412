@@ -1,3 +1,6 @@
+# Author: Keith Yeung 
+# Email: keithy@bu.edu 
+# this is a model for Profiles
 ## mini_fb/models.py
 from django.db import models
 
