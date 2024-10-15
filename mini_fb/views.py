@@ -6,7 +6,8 @@
 from .models import Profile # import the models(Profile)
 from django.views.generic import ListView, DetailView, CreateView
 from .forms import *
-import random
+from django.urls import reverse ## NEW
+from django.shortcuts import render
 
 # Create your views here.
 class ShowAllProfiles(ListView):
@@ -29,14 +30,13 @@ class CreateProfileView(CreateView):
     form_class = CreateProfileForm
     template_name = "mini_fb/create_profile_form.html"
 
-    def get_absolute_url(self) -> str:
+    def get_success_url(self) -> str:
         '''Return the URL to redirect to on success.'''
         # return 'show_all' # a valid URL pattern
         # return reverse('show_all') # look up the URL called "show_all"
 
         # find the Profile identified by the PK from the URL pattern
-        profile = Profile.objects.get(pk=self.kwargs['pk'])
-        return reverse('show_all_profiles', kwargs={'pk':profile.pk})
+        return reverse("show_all_profiles", kwargs=self.kwargs)
 
 class CreateStatusMessageView(CreateView):
     '''a view to show/process the create status message form:'''
@@ -46,7 +46,8 @@ class CreateStatusMessageView(CreateView):
 
     def get_success_url(self) -> str:
         '''return the URL to redirect to after sucessful create'''
-        return reverse("profile", kwargs=self.kwargs)
+        profile = Profile.objects.get(pk=self.kwargs['pk'])
+        return reverse('show_profile', kwargs={'pk':profile.pk})
     
     def form_valid(self, form):
         '''this method executes after form submission'''

@@ -12,12 +12,12 @@
 
     <div>
       <!-- Display the full name -->
-      <h2>{{ profile.Fname }} {{ profile.Lname }}</h2>
-
-      <!-- Display the city and email -->
-      <strong>City: {{ profile.city }}</strong><br>
-      <strong>Email: {{ profile.email }}</strong><br>
-      <strong>Address: {{ profile.address }}</strong>
+      <h4>Name: {{profile.Fname}} {{profile.Lname}}</h4>
+      <h4>City: {{profile.city}}</h4>
+      <h4>Email: {{profile.email}}</h4>
+      <h4><a href="{% url 'create_status' profile.pk %}">
+          Add a status message</a>
+      </h4>
     </div>
   </article>
 
