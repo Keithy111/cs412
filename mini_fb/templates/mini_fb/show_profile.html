@@ -1,0 +1,43 @@
+<!-- Author: Keith Yeung -->
+<!-- Email: keithy@bu.edu -->
+<!-- html file to display one content in profile table -->
+{% extends 'mini_fb/base.html' %}
+
+{% block content %}
+<h1>{{profile.Fname}}</h1>
+<main class="grid-container">
+  <article class="featured">
+    <!-- Display the profile picture if available -->
+    <img src="{{ profile.profile_url }}" alt="{{ profile.Fname }}'s profile picture">
+
+    <div>
+      <!-- Display the full name -->
+      <h2>{{ profile.Fname }} {{ profile.Lname }}</h2>
+
+      <!-- Display the city and email -->
+      <strong>City: {{ profile.city }}</strong><br>
+      <strong>Email: {{ profile.email }}</strong><br>
+      <strong>Address: {{ profile.address }}</strong>
+    </div>
+  </article>
+
+  <!-- show the status messages -->
+  <div>
+    {% if profile.get_status_message %}
+    <h2>Status Message</h2>
+    <!-- call the get_comments method on the article object -->
+    {% for c in profile.get_status_message %}
+    <div>
+      <strong>by {{profile.Fname}} at {{c.timestamp}}</strong>
+      <p>
+        {{c.message}}
+      </p>
+    </div>
+    {% endfor %}
+    {% else %}
+    <h2>No Status Message</h2>
+    {% endif %}
+  </div>
+
+</main>
+{% endblock %}

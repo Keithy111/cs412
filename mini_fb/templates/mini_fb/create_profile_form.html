@@ -1,0 +1,28 @@
+<!-- Author: Keith Yeung -->
+<!-- Email: keithy@bu.edu -->
+<!-- html file to display form in create profile -->
+<!-- mini_fb/templates/mini_fb/create_profile_form.html -->
+{% extends 'mini_fb/base.html' %}
+{% block content %}
+
+<h2>Create a Profile</h2>
+
+<form method="POST">
+  <!-- CSRF token for security -->
+  {% csrf_token %}
+
+  <!-- Render the form as a table -->
+  <table>
+    {{ form.as_table }}
+  </table>
+
+  <!-- Submit button -->
+  <button type="submit">Create Profile</button>
+
+  <!-- Cancel button - redirects to profile list or home page -->
+  <a href="{% url 'show_all_profiles' %}">
+    <button type="button">Cancel</button>
+  </a>
+</form>
+
+{% endblock %}

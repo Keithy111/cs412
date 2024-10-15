@@ -10,7 +10,9 @@
   <article>
     <!-- Display the profile picture if available -->
     {% if profile.profile_url %}
-    <img src="{{ profile.profile_url }}" alt="{{ profile.Fname }}'s profile picture">
+    <a href="{% url 'show_profile' profile.pk %}">
+      <img src="{{ profile.profile_url }}" alt="{{ profile.Fname }}'s profile picture">
+    </a>
     {% endif %}
 
     <div>
