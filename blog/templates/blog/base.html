@@ -1,19 +1,26 @@
-<!-- templates/base.html -->
-<!-- blog/templates/blog/base.html -->
+<!-- blog/templates/blog/base.html 
+ A template with common HTML code that will be re-used by 
+ all of the other templates.
+ -->
+
 {% load static %}
 <html>
 
 <head>
-  <title>Blog</title>
+  <title>Our Blog</title>
   <link rel="stylesheet" href="{% static 'styles-blog.css' %}">
 </head>
 
 <body>
-  <header>
-    <h1>Blog</h1>
-  </header>
+  <nav>
+    <ul>
+      <li><a href="{% url 'show_all' %}">Show All</a></li>
+      <li><a href="{% url 'random' %}">Random</a></li>
+    </ul>
+  </nav>
 
   {% block content %}
+  <!-- fill in this section with specific page detail -->
   {% endblock %}
 
 </body>
