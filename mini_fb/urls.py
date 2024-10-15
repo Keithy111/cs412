@@ -7,6 +7,7 @@ from .views import ShowAllProfiles, ShowProfilePageView, CreateProfileView, Crea
 
 urlpatterns = [
     path(r'', ShowAllProfiles.as_view(), name='show_all_profiles'),  # Map '' to ShowAllProfilesView
+    path(r'show_all_profiles/', ShowAllProfiles.as_view(), name="show_all_profiles" ),
     path(r'profile/<int:pk>', ShowProfilePageView.as_view(), name='show_profile'),
     path(r'profile/<int:pk>/create_status', CreateStatusMessageView.as_view(), name="create_status"),
     path(r'create_profile', CreateProfileView.as_view(), name='create_profile'),

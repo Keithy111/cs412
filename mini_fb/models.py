@@ -3,6 +3,8 @@
 # this is a model for Profiles
 ## mini_fb/models.py
 from django.db import models
+from django.urls import reverse ## NEW
+
 
 # Create your models here.
 
@@ -26,6 +28,10 @@ class Profile(models.Model):
     '''Return all of the status message about this profile'''
     message = StatusMessage.objects.filter(profile=self)
     return message
+  
+  def get_absolute_url(self):
+    '''returns the URL for the object’s detailed view'''
+    return reverse('show_profile', kwargs={'pk': self.pk})
 
 class StatusMessage(models.Model):
   '''This will model the data attributes of Status Message'''

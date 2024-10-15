@@ -30,14 +30,10 @@ class CreateProfileView(CreateView):
     form_class = CreateProfileForm
     template_name = "mini_fb/create_profile_form.html"
 
-    def get_success_url(self) -> str:
-        '''Return the URL to redirect to on success.'''
-        # return 'show_all' # a valid URL pattern
-        # return reverse('show_all') # look up the URL called "show_all"
-
-        # find the Profile identified by the PK from the URL pattern
-        return reverse("show_all_profiles", kwargs=self.kwargs)
-
+    def get_absolute_url(self):
+        '''returns the URL for the object’s detailed view'''
+        return reverse('show_profile', kwargs={'pk': self.pk})
+        
 class CreateStatusMessageView(CreateView):
     '''a view to show/process the create status message form:'''
 
