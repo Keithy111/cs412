@@ -57,6 +57,4 @@ def about(request):
     # Render the 'about.html' template
     return render(request, 'quotes/about.html', context)
 
-def redirect_to_quote(request):
-    return redirect('/quotes/quote/')
 

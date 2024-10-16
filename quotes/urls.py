@@ -9,8 +9,8 @@ from . import views ## be able to use the code in views.py
 #all of the URLs that are part of this app
 
 urlpatterns = [
-  path('', views.redirect_to_quote, name='home'),  # Redirect home page to /quotes/quote/
-  path(r'quote', views.quote, name="quote"),
-  path(r'show_all', views.show_all, name="show_all"),
-  path(r'about', views.about, name="about"),
+    path(r'', views.quote, name="quote"),
+    path('quote/', views.quote, name="quote"),
+    path('about', views.about, name="about"),
+    path('show_all/', views.show_all,name="show_all")
 ]
