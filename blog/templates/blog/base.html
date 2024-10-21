@@ -7,20 +7,23 @@
 <html>
 
 <head>
-  <title>Our Blog</title>
+  <title>Blog</title>
   <link rel="stylesheet" href="{% static 'styles-blog.css' %}">
 </head>
 
 <body>
-  <nav>
-    <ul>
-      <li><a href="{% url 'all' %}">Show All</a></li>
-      <li><a href="{% url 'random' %}">Random</a></li>
-    </ul>
-  </nav>
+  <header>
+    <h1>Blog</h1>
+    <nav>
+      <ul>
+        <li><a href="{% url 'all' %}">Show All</a></li>
+        <li><a href="{% url 'random' %}">Random</a></li>
+        <li><a href="{% url 'create_article' %}">Create Article </a></li>
+      </ul>
+    </nav>
+  </header>
 
   {% block content %}
-  <!-- fill in this section with specific page detail -->
   {% endblock %}
 
 </body>

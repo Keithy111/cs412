@@ -21,23 +21,30 @@
     </div>
   </article>
 
-  <!-- show the status messages -->
+  <!-- Show the status messages -->
   <div>
     {% if profile.get_status_message %}
     <h2>Status Message</h2>
-    <!-- call the get_comments method on the article object -->
+
     {% for c in profile.get_status_message %}
     <div>
       <strong>by {{profile.Fname}} at {{c.timestamp}}</strong>
-      <p>
-        {{c.message}}
-      </p>
+      <p>{{c.message}}</p>
+
+      <!-- Display images associated with the status message -->
+      {% if c.get_images %}
+      <div class="status-images">
+        {% for img in c.get_images %}
+        <img src="{{ img.image_file.url }}" alt="Image for {{ c.message }}" style="max-width: 200px;">
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
     {% endfor %}
+
     {% else %}
     <h2>No Status Message</h2>
     {% endif %}
   </div>
-
 </main>
 {% endblock %}

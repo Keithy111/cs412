@@ -8,6 +8,7 @@ from typing import Any
 from django.views.generic import ListView, DetailView, CreateView ## NEW
 from .models import * ## import the models (e.g., Article)
 from .forms import * ## import the forms (e.g., CreateCommentForm)
+from .forms import CreateArticleForm, CreateCommentForm
 
 import random
 
@@ -90,4 +91,16 @@ class CreateCommentView(CreateView):
         form.instance.article = article # like: comment.article = article
 
         # delegate work to superclass version of this method
+        return super().form_valid(form)
+
+class CreateArticleView(CreateView):
+    '''A view to create a new Article and save it to the database.'''
+    form_class = CreateArticleForm
+    template_name = "blog/create_article_form.html"
+    
+    def form_valid(self, form):
+        '''Handle the form submission to create a new Article object.'''
+        
+        print(f'CreateArticleView: form.cleaned_data={form.cleaned_data}')
+        # delegate work to the superclass version of this method
         return super().form_valid(form)
