@@ -4,7 +4,7 @@
 # #mini_fb/views.py
 
 from .models import Profile, StatusMessage, Image 
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from .forms import *
 from django.urls import reverse ## NEW
 from django.shortcuts import render
@@ -81,6 +81,24 @@ class CreateStatusMessageView(CreateView):
         # Add the profile to the context data
         context['profile'] = profile
 
+        return context
+
+
+class UpdateProfileView(UpdateView):
+    '''Class-based view for updating a user's profile.'''
+
+    model = Profile
+    form_class = UpdateProfileForm
+    template_name = 'mini_fb/update_profile_form.html'
+
+    def get_success_url(self):
+        '''Override to redirect to the updated profile's detail page.'''
+        return reverse('show_profile', kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        '''Add additional context data to the template.'''
+        context = super().get_context_data(**kwargs)
+        context['profile'] = self.object  # Add the profile instance to the context
         return context
 
 

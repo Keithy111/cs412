@@ -15,6 +15,7 @@
       <h4>Name: {{profile.Fname}} {{profile.Lname}}</h4>
       <h4>City: {{profile.city}}</h4>
       <h4>Email: {{profile.email}}</h4>
+      <h4><a href="{% url 'update_profile' profile.pk %}" class="btn btn-warning">Update Profile</a></h4>
       <h4><a href="{% url 'create_status' profile.pk %}">
           Add a status message</a>
       </h4>
