@@ -26,3 +26,10 @@ class UpdateProfileForm(forms.ModelForm):
         model = Profile
         fields = ['Fname', 'Lname', 'city', 'email', 'address', 'profile_url']
         # Explicitly listing the fields to include, excluding first name (Fname) and last name (Lname)
+
+class StatusMessageForm(forms.ModelForm):
+    class Meta:
+        model = StatusMessage
+        fields = ['message']  # Only allow updating the 'message' field
+        
+        

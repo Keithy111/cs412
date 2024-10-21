@@ -1,0 +1,25 @@
+<!-- Author: Keith Yeung -->
+<!-- Email: keithy@bu.edu -->
+<!-- Template for updating status message -->
+
+{% extends 'mini_fb/base.html' %}
+
+{% block content %}
+<h2>Update Status Message</h2>
+
+<form method="POST">
+  {% csrf_token %}
+
+  <div class="form-group">
+    <label for="{{ form.message.id_for_label }}">Status Message:</label>
+    {{ form.message }}
+  </div>
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Update Status</button>
+  </div>
+</form>
+
+<br>
+<a href="{% url 'show_profile' st_msg.profile.pk %}" class="btn btn-secondary">Cancel</a>
+{% endblock %}
