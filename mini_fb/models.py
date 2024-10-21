@@ -50,9 +50,9 @@ class StatusMessage(models.Model):
     return images
 
 class Image(models.Model):
-    image_file = models.ImageField(blank=True)  
-    status_message = models.ForeignKey(StatusMessage, on_delete=models.CASCADE, related_name='images')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    image_file = models.ImageField(upload_to='images/')
+    status_message = models.ForeignKey(StatusMessage, on_delete=models.CASCADE)
+    uploaded_at = models.DateTimeField(auto_now_add=True)  
 
     def __str__(self):
-        return f"Image for {self.status_message.message} uploaded at {self.uploaded_at}"
+        return f"Image {self.id} for StatusMessage {self.status_message.id}"

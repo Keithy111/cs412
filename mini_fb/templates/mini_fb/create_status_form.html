@@ -7,23 +7,32 @@
 
 <h2>Add a status message for {{profile.Fname}} {{profile.Lname}}</h2>
 
-<form method="POST">
+<!-- Form to create a status message, now with file upload -->
+<form method="POST" enctype="multipart/form-data">
   <table>
-    {{form.as_table}}
+    <!-- Display the form fields as a table -->
+    {{ form.as_table }}
 
+    <!-- Add file upload input for images -->
+    <tr>
+      <td><label for="files">Upload Images:</label></td>
+      <td><input type="file" name="files" id="files" multiple></td>
+    </tr>
+
+    <!-- Submit button with CSRF token -->
     <tr>
       <td></td>
       <td>
-        <input type="submit" name="Create Status Message">
         {% csrf_token %}
+        <input type="submit" value="Create Status Message">
+      </td>
+    </tr>
+  </table>
 </form>
 
-<!-- NOTE: this is a separate form! -->
+<!-- Separate form for cancel button -->
 <form action="{% url 'show_profile' profile.pk %}">
   <input type="submit" name="Cancel" value="Cancel">
 </form>
-</td>
-</tr>
-</table>
 
 {% endblock %}

@@ -3,11 +3,14 @@
 # This a Django class-based view (ShowAllProfiles) that uses ListView to display all Profile objects from the database in a template named 'mini_fb/show_all_profiles.html'.
 # #mini_fb/views.py
 
-from .models import Profile # import the models(Profile)
+from .models import Profile, StatusMessage, Image 
 from django.views.generic import ListView, DetailView, CreateView
 from .forms import *
 from django.urls import reverse ## NEW
 from django.shortcuts import render
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+
 
 # Create your views here.
 class ShowAllProfiles(ListView):
@@ -35,43 +38,50 @@ class CreateProfileView(CreateView):
         return reverse('show_profile', kwargs={'pk': self.pk})
         
 class CreateStatusMessageView(CreateView):
-    '''a view to show/process the create status message form:'''
+    '''A view to show/process the create status message form'''
 
     form_class = CreateStatusMessageForm
     template_name = "mini_fb/create_status_form.html"
 
     def get_success_url(self) -> str:
-        '''return the URL to redirect to after sucessful create'''
+        '''Return the URL to redirect to after successful create'''
         profile = Profile.objects.get(pk=self.kwargs['pk'])
-        return reverse('show_profile', kwargs={'pk':profile.pk})
-    
+        return reverse('show_profile', kwargs={'pk': profile.pk})
+
     def form_valid(self, form):
-        '''this method executes after form submission'''
+        '''This method executes after form submission'''
 
-        print(f'CreateStatusMessageView.form_valid(): form={form.cleaned_data}')
-        print(f'CreateStatusMessageView.form_valid(): self.kwargs={self.kwargs}')
-
-        profile = Profile.objects.get(pk=self.kwargs['pk'])
-
-        # attach the profile to the new Comment 
-        # (form.instance is the new Comment object)
+        profile = get_object_or_404(Profile, pk=self.kwargs['pk'])
         form.instance.profile = profile
 
-        return super().form_valid(form)
-    
-    def get_context_data(self, **kwargs: any) -> dict[str, any]:
-        '''build the template context data -- a dict of key-value pairs.'''
+        # Save the form to store the new StatusMessage in the database
+        sm = form.save()
 
-        # get the super class version of context data
+        # Handle file uploads (the name 'files' should match the input name in the form)
+        files = self.request.FILES.getlist('files')
+        for f in files:
+            # Create a new Image object for each file without the 'timestamp' field
+            image = Image(
+                image_file=f,  # Set the file in the ImageField
+                status_message=sm  # Link the image to the status message
+            )
+            image.save()
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs: any) -> dict[str, any]:
+        '''Build the template context data -- a dict of key-value pairs.'''
+
+        # Get the super class version of context data
         context = super().get_context_data(**kwargs)
 
-        # find the article with the PK from the URL
-        # self.kwargs['pk'] is finding the article PK from the URL
+        # Find the profile with the PK from the URL
         profile = Profile.objects.get(pk=self.kwargs['pk'])
 
-        # add the article to the context data
+        # Add the profile to the context data
         context['profile'] = profile
 
         return context
+
 
     
