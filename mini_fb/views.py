@@ -143,32 +143,41 @@ class CreateFriendView(View):
         return reverse('show_profile', kwargs={'pk': pk})
 
 class ShowFriendSuggestionsView(DetailView):
-    ''' A view to see friend suggestions '''
+    ''' A view to see friend suggestions. This view displays potential friends 
+        for the user based on their profile. '''
     model = Profile
     template_name = 'mini_fb/friend_suggestions.html'
     context_object_name = 'profile'
 
     def get_context_data(self, **kwargs):
+        ''' Override the get_context_data method to add friend suggestions 
+            to the context. This method retrieves the profile object and fetches
+            its friend suggestions to be displayed in the template. '''
         context = super().get_context_data(**kwargs)
         profile = self.get_object()
         context['friend_suggestions'] = profile.get_friend_suggestions()
         return context
     
     def get_success_url(self):
-        ''' Return the URL to redirect to after successful update '''
+        ''' Return the URL to redirect to after a successful update. 
+            This method specifies where to navigate after performing an action,
+            using the primary key of the current profile to construct the URL. '''
         return reverse('show_profile', kwargs={'pk': self.object.profile.pk})
     
+
 class ShowNewsFeedView(DetailView):
-    ''' A view to see other status messages of friends '''
+    ''' A view to see the news feed that displays status messages of friends. 
+        This view allows the user to view all recent status updates from their friends. '''
     model = Profile
     template_name = 'mini_fb/news_feed.html'
     context_object_name = 'profile'
 
     def get_context_data(self, **kwargs):
+        ''' Override the get_context_data method to add news feed data 
+            to the context. This method retrieves the profile object and fetches
+            its news feed, which includes status updates from friends, to be displayed. '''
         context = super().get_context_data(**kwargs)
         profile = self.get_object()
         context['news_feed'] = profile.get_news_feed()
-        context['current_profile'] = profile
+        context['current_profile'] = profile  # Include the current profile for reference
         return context
-
-    
