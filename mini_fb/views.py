@@ -4,12 +4,13 @@
 # #mini_fb/views.py
 
 from .models import Profile, StatusMessage, Image 
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 from .forms import *
 from django.urls import reverse ## NEW
 from django.shortcuts import render
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect ## NEW
 
 
 # Create your views here.
@@ -120,5 +121,54 @@ class UpdateStatusMessageView(UpdateView):
     def get_success_url(self):
         # Redirect the user back to the profile page after successful update
         return reverse('show_profile', kwargs={'pk': self.object.profile.pk})
+
+class CreateFriendView(View):
+    ''' A view that allows a user to add a friend '''
+    def dispatch(self, request, *args, **kwargs):
+        if request.method.lower() == 'post':
+            return self.post(request, *args, **kwargs)
+        return self.http_method_not_allowed(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        profile_pk = kwargs.get('pk')
+        other_pk = kwargs.get('other_pk')
+        profile = Profile.objects.get(pk=profile_pk)
+        other_profile = Profile.objects.get(pk=other_pk)
+
+        profile.add_friend(other_profile)
+        return HttpResponseRedirect(self.get_success_url(profile.pk))
+    
+    def get_success_url(self, pk):
+        ''' Return the URL to redirect to after adding a friend '''
+        return reverse('show_profile', kwargs={'pk': pk})
+
+class ShowFriendSuggestionsView(DetailView):
+    ''' A view to see friend suggestions '''
+    model = Profile
+    template_name = 'mini_fb/friend_suggestions.html'
+    context_object_name = 'profile'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = self.get_object()
+        context['friend_suggestions'] = profile.get_friend_suggestions()
+        return context
+    
+    def get_success_url(self):
+        ''' Return the URL to redirect to after successful update '''
+        return reverse('show_profile', kwargs={'pk': self.object.profile.pk})
+    
+class ShowNewsFeedView(DetailView):
+    ''' A view to see other status messages of friends '''
+    model = Profile
+    template_name = 'mini_fb/news_feed.html'
+    context_object_name = 'profile'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = self.get_object()
+        context['news_feed'] = profile.get_news_feed()
+        context['current_profile'] = profile
+        return context
 
     

@@ -1,0 +1,27 @@
+<!-- Author: Keith Yeung -->
+<!-- Email: keithy@bu.edu -->
+<!-- HTML file to display friend suggestions -->
+{% extends 'mini_fb/base.html' %}
+
+{% block content %}
+<h2>Friend Suggestions for {{ profile.Fname }} {{ profile.Lname }}</h2>
+{% if friend_suggestions %}
+<div style="display: flex; flex-wrap: wrap;">
+  {% for suggestion in friend_suggestions %}
+  <div style="padding: 15px; text-align: center;">
+    <a href="{% url 'show_profile' pk=suggestion.pk %}">
+      <img src="{{ suggestion.profile_url }}" alt="{{ suggestion.Fname }}'s profile image"
+        style="width: 200px; height: 200px; object-fit: cover; border-radius: 10%; border: 1px solid #ddd;">
+      <p>{{ suggestion.Fname }} {{ suggestion.Lname }}</p>
+    </a>
+    <form action="{% url 'add_friend' pk=profile.pk other_pk=suggestion.pk %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Add Friend</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p>No friend suggestions available.</p>
+{% endif %}
+{% endblock %}

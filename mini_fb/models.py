@@ -4,6 +4,7 @@
 ## mini_fb/models.py
 from django.db import models
 from django.urls import reverse ## NEW
+from django.utils import timezone
 
 
 # Create your models here.
@@ -32,6 +33,53 @@ class Profile(models.Model):
   def get_absolute_url(self):
     '''returns the URL for the object’s detailed view'''
     return reverse('show_profile', kwargs={'pk': self.pk})
+  
+  def get_friends(self):
+      '''Return all friends related to a profile'''
+
+      friends = Friend.objects.filter(models.Q(profile1=self) | models.Q(profile2=self))
+      friend_profiles = [
+          friend.profile2 if friend.profile1 == self else friend.profile1
+          for friend in friends        
+      ]
+      return friend_profiles
+
+  def add_friend(self, friend):
+      '''  Add a Friend relation between self and another friend''' 
+
+      if self == friend:
+          return
+      existing_friend = Friend.objects.filter(
+          models.Q(profile1=self, profile2=friend) | models.Q(profile1=friend, profile2=self)
+      ).exists()
+      if not existing_friend:
+          Friend.objects.create(profile1=self, profile2=friend)
+  
+  def get_friend_suggestions(self):
+      '''Return a suggested list of friends for this Profile.'''
+
+      all_profiles = Profile.objects.exclude(id=self.id)
+      print(f"All Profiles: {[profile.id for profile in all_profiles]}")
+      friends = Friend.objects.filter(
+          models.Q(profile1=self) | models.Q(profile2=self)
+      ).values_list('profile1', 'profile2')
+      friend_ids = set()
+      for profile1_id, profile2_id in friends:
+          if profile1_id != self.id:
+              friend_ids.add(profile1_id)
+          if profile2_id != self.id:
+              friend_ids.add(profile2_id)
+      suggestions = all_profiles.exclude(id__in=friend_ids)
+      return suggestions
+  
+  def get_news_feed(self):
+        ''' Return a StatusMessages of the user and friends '''
+
+        user_status = StatusMessage.objects.filter(profile=self)
+        friends = self.get_friends()
+        friend_status = StatusMessage.objects.filter(profile__in=friends)
+        news_feed = user_status.union(friend_status).order_by('-timestamp')
+        return news_feed
 
 class StatusMessage(models.Model):
   '''This will model the data attributes of Status Message'''
@@ -56,3 +104,15 @@ class Image(models.Model):
 
     def __str__(self):
         return f"Image {self.id} for StatusMessage {self.status_message.id}"
+
+
+class Friend(models.Model):
+    """This model represents a friendship between two Profiles."""
+
+    profile1 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="profile1")
+    profile2 = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='profile2')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Return a string representation of this Friend relationship."""
+        return f"{self.profile1.Fname} {self.profile1.Lname} & {self.profile2.Fname} {self.profile2.Lname} " 

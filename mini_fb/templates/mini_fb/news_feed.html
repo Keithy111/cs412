@@ -1,0 +1,38 @@
+<!-- Author: Keith Yeung -->
+<!-- Email: keithy@bu.edu -->
+<!-- HTML file to status message of the user and their friends -->
+
+{% extends 'mini_fb/base.html' %}
+{% block content %}
+
+<h2 style="text-align: center;">News Feed for {{ profile.Fname }} {{ profile.Lname }}</h2>
+
+{% if news_feed %}
+<div style="display: flex; flex-direction: column; align-items: center;">
+  {% for status in news_feed %}
+  <div
+    style="display: flex; align-items: flex-start; width: 80%; margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+    <div style="flex: 0 0 auto; margin-right: 15px;">
+      <img src="{{ status.profile.profile_url }}" alt="{{ status.profile.Fname }}'s profile image"
+        style="width: 150px; height: 150px; border-radius: 50%;">
+      <p><strong>{{ status.profile.Fname }} {{ status.profile.Lname }}</strong></p>
+    </div>
+    <div style="flex: 1;">
+      <p>{{ status.message }}</p>
+      <div style="display: flex; flex-wrap: wrap;">
+        {% for img in status.get_images %}
+        <img src="{{ img.image_file.url }}" alt="Image for this status message"
+          style="width: 200px; height: 150px; margin-right: 5px; margin-bottom: 5px;">
+        {% endfor %}
+      </div>
+      <small>Posted on: {{ status.timestamp }}</small>
+    </div>
+  </div>
+  <br>
+  {% endfor %}
+</div>
+{% else %}
+<p>No status messages available in the news feed.</p>
+{% endif %}
+<a href="{% url 'show_profile' pk=profile.pk %}" style="display: block; text-align: center;">Back to Profile</a>
+{% endblock %}
