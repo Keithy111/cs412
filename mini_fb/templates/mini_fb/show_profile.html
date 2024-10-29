@@ -51,13 +51,14 @@
     <h2>No Status Message</h2>
     {% endif %}
 
-    <h2> Show News Feed </h2>
+    <h2>Show News Feed</h2>
     <a href="{% url 'news_feed' pk=profile.pk %}">View News Feed</a>
 
-    <h2>{{profile.Fname}}'s Friends</h2>
-    {% if profile.get_friends %}
+    <h2>{{ profile.Fname }}'s Friends</h2>
+    {% with profile.get_friends as friends %}
+    {% if friends %}
     <div style="display: flex; flex-wrap: wrap;">
-      {% for friend in profile.get_friends %}
+      {% for friend in friends %}
       <div style="padding-right: 15px; padding-bottom: 15px;">
         <a href="{% url 'show_profile' pk=friend.pk %}">
           <img src="{{ friend.profile_url }}" alt="{{ friend.Fname }}'s profile image"
@@ -70,7 +71,9 @@
     {% else %}
     <p>No friends available for this profile.</p>
     {% endif %}
-    <h2> Friend Suggestions </h2>
+    {% endwith %}
+
+    <h2>Friend Suggestions</h2>
     <a href="{% url 'friend_suggestions' pk=profile.pk %}">View Friend Suggestions</a>
 
   </div>

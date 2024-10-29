@@ -35,52 +35,53 @@ class Profile(models.Model):
     return reverse('show_profile', kwargs={'pk': self.pk})
   
   def get_friends(self):
-      '''Return all friends related to a profile'''
-
-      friends = Friend.objects.filter(models.Q(profile1=self) | models.Q(profile2=self))
-      friend_profiles = [
-          friend.profile2 if friend.profile1 == self else friend.profile1
-          for friend in friends        
-      ]
-      return friend_profiles
-
+    """Return all friends related to a profile."""
+    all_friends = []
+    # Loop through Friend relationships and add each linked friend to the list
+    friendships1 = Friend.objects.filter(profile1=self)
+    friendships2 = Friend.objects.filter(profile2=self)
+    
+    for friendship in friendships1:
+        all_friends.append(friendship.profile2)  # profile2 is the friend of profile1 (self)
+    
+    for friendship in friendships2:
+        all_friends.append(friendship.profile1)  # profile1 is the friend of profile2 (self)
+        
+    return all_friends
+  
   def add_friend(self, friend):
-      '''  Add a Friend relation between self and another friend''' 
-
-      if self == friend:
-          return
-      existing_friend = Friend.objects.filter(
-          models.Q(profile1=self, profile2=friend) | models.Q(profile1=friend, profile2=self)
-      ).exists()
-      if not existing_friend:
-          Friend.objects.create(profile1=self, profile2=friend)
+       """Add a Friend relation between self and another friend."""
+       if self != friend and friend not in self.get_friends():  
+        Friend.objects.create(profile1=self, profile2=friend)
   
   def get_friend_suggestions(self):
-      '''Return a suggested list of friends for this Profile.'''
+    """Return a list of possible friends for this Profile."""
+    # Get all profiles excluding the current profile
+    all_profiles = list(Profile.objects.all())
+    
+    # Get all friends of the current profile
+    friends = Friend.objects.filter(
+        models.Q(profile1=self) | models.Q(profile2=self)
+    )
+    friend_ids = set()
+    for friendship in friends:
+        friend_ids.add(friendship.profile1.id if friendship.profile1 != self else friendship.profile2.id)
 
-      all_profiles = Profile.objects.exclude(id=self.id)
-      print(f"All Profiles: {[profile.id for profile in all_profiles]}")
-      friends = Friend.objects.filter(
-          models.Q(profile1=self) | models.Q(profile2=self)
-      ).values_list('profile1', 'profile2')
-      friend_ids = set()
-      for profile1_id, profile2_id in friends:
-          if profile1_id != self.id:
-              friend_ids.add(profile1_id)
-          if profile2_id != self.id:
-              friend_ids.add(profile2_id)
-      suggestions = all_profiles.exclude(id__in=friend_ids)
-      return suggestions
+    suggestions = [
+        profile for profile in all_profiles 
+        if profile.id != self.id and profile.id not in friend_ids
+    ]
+    return suggestions
   
   def get_news_feed(self):
-        ''' Return a StatusMessages of the user and friends '''
+     ''' Return a StatusMessages of the user and friends '''
 
-        user_status = StatusMessage.objects.filter(profile=self)
-        friends = self.get_friends()
-        friend_status = StatusMessage.objects.filter(profile__in=friends)
-        news_feed = user_status.union(friend_status).order_by('-timestamp')
-        return news_feed
-
+     user_status = StatusMessage.objects.filter(profile=self)
+     friends = self.get_friends()
+     friend_status = StatusMessage.objects.filter(profile__in=friends)
+     news_feed = user_status.union(friend_status).order_by('-timestamp')
+     return news_feed
+  
 class StatusMessage(models.Model):
   '''This will model the data attributes of Status Message'''
 

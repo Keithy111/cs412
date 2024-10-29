@@ -5,10 +5,12 @@ from django.urls import reverse
 from typing import Any
 
 # Create your views here.
-from django.views.generic import ListView, DetailView, CreateView ## NEW
+from django.views.generic import ListView, DetailView, CreateView, UpdateView ## NEW
 from .models import * ## import the models (e.g., Article)
 from .forms import * ## import the forms (e.g., CreateCommentForm)
 from .forms import CreateArticleForm, CreateCommentForm
+from django.contrib.auth.mixins import LoginRequiredMixin ## NEW
+
 
 import random
 
@@ -18,6 +20,14 @@ class ShowAllView(ListView):
     model = Article # the model to display
     template_name = 'blog/show_all.html'
     context_object_name = 'articles' # context variable to use in the template
+
+    def dispatch(self, request):
+        '''add this method to show/debug logged in user'''
+        print(f"Logged in user: request.user={request.user}")
+        print(f"Logged in user: request.user.is_authenticated={request.user.is_authenticated}")
+        return super().dispatch(request)
+    
+    ## show all users in views
 
 class RandomArticleView(DetailView):
     '''Display one Article selected at Random'''
@@ -93,14 +103,23 @@ class CreateCommentView(CreateView):
         # delegate work to superclass version of this method
         return super().form_valid(form)
 
-class CreateArticleView(CreateView):
+class CreateArticleView(LoginRequiredMixin, CreateView):
     '''A view to create a new Article and save it to the database.'''
     form_class = CreateArticleForm
     template_name = "blog/create_article_form.html"
+
+    def get_login_url(self) -> str:
+        '''Return the Url required for login'''
+        return reverse('login')
     
     def form_valid(self, form):
         '''Handle the form submission to create a new Article object.'''
-        
         print(f'CreateArticleView: form.cleaned_data={form.cleaned_data}')
-        # delegate work to the superclass version of this method
+
+        # find the logged in user
+        user = self.request.user
+        print(f"CreateArticleView user={user} article.user={user}")
+
+        # attach user to form instance (Article object):
+        form.instance.user = user
         return super().form_valid(form)

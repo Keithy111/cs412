@@ -126,17 +126,19 @@ class CreateFriendView(View):
     ''' A view that allows a user to add a friend '''
     def dispatch(self, request, *args, **kwargs):
         if request.method.lower() == 'post':
-            return self.post(request, *args, **kwargs)
-        return self.http_method_not_allowed(request, *args, **kwargs)
-    
-    def post(self, request, *args, **kwargs):
-        profile_pk = kwargs.get('pk')
-        other_pk = kwargs.get('other_pk')
-        profile = Profile.objects.get(pk=profile_pk)
-        other_profile = Profile.objects.get(pk=other_pk)
+            profile = Profile.objects.filter(pk=kwargs.get('pk')).first()
+            other_profile = Profile.objects.filter(pk=kwargs.get('other_pk')).first()
 
-        profile.add_friend(other_profile)
-        return HttpResponseRedirect(self.get_success_url(profile.pk))
+            if profile and other_profile:
+                profile.add_friend(other_profile)
+                return HttpResponseRedirect(reverse('show_profile', kwargs={'pk': profile.pk}))
+            
+            return self.http_method_not_allowed(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_profile(self, pk):
+        """Helper method to retrieve a Profile by primary key."""
+        return Profile.objects.filter(pk=pk).first()
     
     def get_success_url(self, pk):
         ''' Return the URL to redirect to after adding a friend '''
@@ -150,18 +152,17 @@ class ShowFriendSuggestionsView(DetailView):
     context_object_name = 'profile'
 
     def get_context_data(self, **kwargs):
-        ''' Override the get_context_data method to add friend suggestions 
-            to the context. This method retrieves the profile object and fetches
-            its friend suggestions to be displayed in the template. '''
         context = super().get_context_data(**kwargs)
-        profile = self.get_object()
-        context['friend_suggestions'] = profile.get_friend_suggestions()
+        context.update(self.get_friend_suggestions_context())
         return context
+
+    def get_friend_suggestions_context(self):
+        """Retrieve friend suggestions for the current profile."""
+        profile = self.get_object()
+        return {'friend_suggestions': profile.get_friend_suggestions()}
     
     def get_success_url(self):
-        ''' Return the URL to redirect to after a successful update. 
-            This method specifies where to navigate after performing an action,
-            using the primary key of the current profile to construct the URL. '''
+        ''' Return the URL to redirect to after a successful update.'''
         return reverse('show_profile', kwargs={'pk': self.object.profile.pk})
     
 
@@ -173,11 +174,14 @@ class ShowNewsFeedView(DetailView):
     context_object_name = 'profile'
 
     def get_context_data(self, **kwargs):
-        ''' Override the get_context_data method to add news feed data 
-            to the context. This method retrieves the profile object and fetches
-            its news feed, which includes status updates from friends, to be displayed. '''
         context = super().get_context_data(**kwargs)
-        profile = self.get_object()
-        context['news_feed'] = profile.get_news_feed()
-        context['current_profile'] = profile  # Include the current profile for reference
+        context.update(self.get_news_feed_context())
         return context
+
+    def get_news_feed_context(self):
+        """Retrieve news feed data for the current profile."""
+        profile = self.get_object()
+        return {
+            'news_feed': profile.get_news_feed(),
+            'current_profile': profile
+        }
