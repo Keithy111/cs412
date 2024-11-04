@@ -1,125 +1,168 @@
 # blog/views.py
-# define the views for the blog app
-from django.shortcuts import render
-from django.urls import reverse
+# views to show the blog application
 from typing import Any
-
-# Create your views here.
-from django.views.generic import ListView, DetailView, CreateView, UpdateView ## NEW
-from .models import * ## import the models (e.g., Article)
-from .forms import * ## import the forms (e.g., CreateCommentForm)
-from .forms import CreateArticleForm, CreateCommentForm
-from django.contrib.auth.mixins import LoginRequiredMixin ## NEW
-
-
 import random
+from django.shortcuts import render, redirect
+from django.urls import reverse  ## NEW
+
+from . models import * 
+from . forms import * ## NEW
+from django.views.generic import ListView, DetailView, CreateView 
+from django.contrib.auth.mixins import LoginRequiredMixin 
+from django.contrib.auth.forms import UserCreationForm ## NEW
+from django.contrib.auth.models import User ## NEW
+from django.contrib.auth import login ## NEW
 
 # class-based view
 class ShowAllView(ListView):
-    '''the view to show all Articles'''
-    model = Article # the model to display
-    template_name = 'blog/show_all.html'
-    context_object_name = 'articles' # context variable to use in the template
+    '''A view to show all Articles.'''
 
-    def dispatch(self, request):
-        '''add this method to show/debug logged in user'''
-        print(f"Logged in user: request.user={request.user}")
-        print(f"Logged in user: request.user.is_authenticated={request.user.is_authenticated}")
-        return super().dispatch(request)
-    
-    ## show all users in views
+    model = Article
+    template_name = 'blog/show_all.html'
+    context_object_name = 'articles'
+
+    def dispatch(self, *args, **kwargs):
+        '''
+        implement this method to add some tracing
+        '''
+        print(f"self.request.user={self.request.user}")
+        # delegate to superclass version
+        return super().dispatch(*args, **kwargs)
 
 class RandomArticleView(DetailView):
-    '''Display one Article selected at Random'''
-    model = Article # the model to display
-    template_name = "blog/article.html"
-    context_object_name = "article"
+    '''Show one article selected at random.'''
 
-    # AttributeError: Generic detail view RandomArticleView must be called with either an object pk or a slug in the URLconf.
-    # one solution: implement get_object method
+    model = Article
+    template_name = 'blog/article.html'
+    context_object_name = "article" # note the singular name
+
+    ## AttributeError: Generic detail view RandomArticleView must be called with either an object pk or a slug in the URLconf.
+    ## one solution: implement the get_object method.
     def get_object(self):
-        '''Return one Article chosed at random.'''
+        '''Return the instance of the Article object to show.'''
 
-        # explicitly add an error to generate a call stack trace:
-        # y = 3 / 0
-
-        # retrieve all of the articles
-        all_articles = Article.objects.all()
+        # get all articles
+        all_articles = Article.objects.all() # SELECT *
         # pick one at random
-        article = random.choice(all_articles)
-        return article
+        return random.choice(all_articles)
+    
 
 class ArticleView(DetailView):
-    '''Display one Article selected by PK'''
-    model = Article # the model to display
-    template_name = "blog/article.html"
-    context_object_name = "article"
+    '''Show one article by its primary key.'''
 
-class CreateCommentView(CreateView):
-    '''
-    A view to create a Comment on an Article.
-    on GET: send back the form to display
-    on POST: read/process the form, and save new Comment to the database
+    model = Article
+    template_name = 'blog/article.html'
+    context_object_name = "article" # note the singular name
+
+
+class CreateCommentView(LoginRequiredMixin, CreateView):
+    '''a view to show/process the create comment form:
+    on GET: sends back the form
+    on POST: read the form data, create an instance of Comment; save to database; ??
     '''
 
     form_class = CreateCommentForm
     template_name = "blog/create_comment_form.html"
 
-    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-
-        # get the context data from the sueprclass
-        context =  super().get_context_data(**kwargs)
-
-        # find the Article identified by the PK from the URL pattern
-        article = Article.objects.get(pk=self.kwargs['pk'])
-        
-        # add the Article referred to by the URL into this context
-        context['article'] = article
-        return context
-
+    # what to do after form submission?
     def get_success_url(self) -> str:
-        '''Return the URL to redirect to on success.'''
-        # return 'show_all' # a valid URL pattern
-        # return reverse('show_all') # look up the URL called "show_all"
-
-        # find the Article identified by the PK from the URL pattern
-        article = Article.objects.get(pk=self.kwargs['pk'])
-        return reverse('article', kwargs={'pk':article.pk})
-        # return reverse('article', kwargs=self.kwargs)
-
+        '''return the URL to redirect to after sucessful create'''
+        #return "/blog/show_all"
+        #return reverse("show_all")
+        return reverse("article", kwargs=self.kwargs)
+    
     def form_valid(self, form):
-        '''This method is called after the form is validated, 
-        before saving data to the database.'''
+        '''this method executes after form submission'''
 
         print(f'CreateCommentView.form_valid(): form={form.cleaned_data}')
         print(f'CreateCommentView.form_valid(): self.kwargs={self.kwargs}')
 
-        # find the Article identified by the PK from the URL pattern
+        # find the article with the PK from the URL
+        # self.kwargs['pk'] is finding the article PK from the URL
         article = Article.objects.get(pk=self.kwargs['pk'])
 
-        # attach this Article to the instance of the Comment to set its FK
-        form.instance.article = article # like: comment.article = article
+        # attach the article to the new Comment 
+        # (form.instance is the new Comment object)
+        form.instance.article = article
 
-        # delegate work to superclass version of this method
+        # delegaute work to the superclass version of this method
         return super().form_valid(form)
+    
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        '''
+        build the template context data --
+        a dict of key-value pairs.'''
+
+        # get the super class version of context data
+        context = super().get_context_data(**kwargs)
+
+        # find the article with the PK from the URL
+        # self.kwargs['pk'] is finding the article PK from the URL
+        article = Article.objects.get(pk=self.kwargs['pk'])
+
+        # add the article to the context data
+        context['article'] = article
+
+        return context
 
 class CreateArticleView(LoginRequiredMixin, CreateView):
-    '''A view to create a new Article and save it to the database.'''
+    '''View to create a new Article instance.'''
+
     form_class = CreateArticleForm
     template_name = "blog/create_article_form.html"
 
     def get_login_url(self) -> str:
-        '''Return the Url required for login'''
-        return reverse('login')
+        '''return the URL required for login'''
+        return reverse('login') 
     
     def form_valid(self, form):
-        '''Handle the form submission to create a new Article object.'''
-        print(f'CreateArticleView: form.cleaned_data={form.cleaned_data}')
+        '''Add some debugging statements.'''
+        print(f'CreateArticleView.form_valid: form.cleaned_data={form.cleaned_data}')
 
-        # find the logged in user
+        # find which user is logged in
         user = self.request.user
-        print(f"CreateArticleView user={user} article.user={user}")
-
-        # attach user to form instance (Article object):
+        print(f'CreateArticleView:form_valid() user={user}')
+        # attach the user to the new article instance
         form.instance.user = user
+
+        # delegate work to superclass
         return super().form_valid(form)
+
+class RegistrationView(CreateView):
+    '''Display and process the UserVreationForm for account registration.'''
+
+    template_name = 'blog/register.html'
+    form_class = UserCreationForm
+
+
+    def dispatch(self, *args, **kwargs):
+        '''Handle the User creation process.'''
+
+        # we handle the HTTP POST request
+        if self.request.POST:
+            
+            print(f"self.request.POST={self.request.POST}")
+            # reconstruct the UserCreationForm from the HTTP POST
+            form = UserCreationForm(self.request.POST)
+            # print(f'form={form}')
+            if not form.is_valid():
+                print(f'form.errors={form.errors}')
+                # let's the CreateView superclass handle this problem!
+                return super().dispatch(*args, **kwargs)
+
+            # save the new User object
+            user = form.save() # creates a new instance of User object in the database
+            print(f"RegistrationView.dispatch: created user {user}")
+
+            # log in the User
+            login(self.request, user)
+            print(f"RegistrationView.dispatch, user {user} is logged in.")
+
+            ## mini_fb note: attach user to Profile creation form before saving.
+
+            # redirect the user to some page view...
+            return redirect(reverse('all'))
+
+        # let the superclass CreateView handle the HTTP GET request:
+        return super().dispatch(*args, **kwargs)

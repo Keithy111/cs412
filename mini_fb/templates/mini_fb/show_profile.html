@@ -15,20 +15,24 @@
       <h4>Name: {{ profile.Fname }} {{ profile.Lname }}</h4>
       <h4>City: {{ profile.city }}</h4>
       <h4>Email: {{ profile.email }}</h4>
-      <h4><a href="{% url 'update_profile' profile.pk %}" class="btn btn-warning">Update Profile</a></h4>
-      <h4><a href="{% url 'create_status' profile.pk %}">Add a status message</a></h4>
+
+      {% if user.is_authenticated and user.pk == profile.user.pk %}
+      <!-- Only the profile owner can see these links -->
+      <h4><a href="{% url 'update_profile' %}" class="btn btn-warning">Update Profile</a></h4>
+      <h4><a href="{% url 'create_status' %}" class="btn btn-primary">Add a Status Message</a></h4>
+      {% endif %}
     </div>
   </article>
 
   <!-- Show the status messages -->
   <div>
     {% if profile.get_status_message %}
-    <h2>Status Message</h2>
+    <h2>Status Messages</h2>
 
     {% for st_msg in profile.get_status_message %}
     <div>
-      <strong>by {{ profile.Fname }} at {{ st_msg.timestamp }}</strong>
       <p>{{ st_msg.message }}</p>
+      <small><strong>Posted on {{ st_msg.timestamp }}</strong></small>
 
       <!-- Display images associated with the status message -->
       {% if st_msg.get_images %}
@@ -39,20 +43,25 @@
       </div>
       {% endif %}
 
-      <!-- Add an Edit link for each status message -->
+      <!-- Only the profile owner can see the edit and delete links -->
+      {% if user.is_authenticated and user.pk == profile.user.pk %}
       <div>
         <a href="{% url 'update_status_message' st_msg.pk %}" class="btn btn-warning btn-sm">Edit</a>
         <a href="{% url 'delete_status_message' st_msg.pk %}" class="btn btn-danger btn-sm">Delete</a>
       </div>
+      {% endif %}
     </div>
     {% endfor %}
 
     {% else %}
-    <h2>No Status Message</h2>
+    <h2>No Status Messages</h2>
     {% endif %}
 
+    <!-- Only the profile owner can see the link to view the news feed -->
+    {% if user.is_authenticated and user.pk == profile.user.pk %}
     <h2>Show News Feed</h2>
-    <a href="{% url 'news_feed' pk=profile.pk %}">View News Feed</a>
+    <a href="{% url 'news_feed' %}" class="btn btn-info">View News Feed</a>
+    {% endif %}
 
     <h2>{{ profile.Fname }}'s Friends</h2>
     {% with profile.get_friends as friends %}
@@ -73,9 +82,11 @@
     {% endif %}
     {% endwith %}
 
+    <!-- Only the profile owner can see the link to view friend suggestions -->
+    {% if user.is_authenticated and user.pk == profile.user.pk %}
     <h2>Friend Suggestions</h2>
-    <a href="{% url 'friend_suggestions' pk=profile.pk %}">View Friend Suggestions</a>
-
+    <a href="{% url 'friend_suggestions' %}" class="btn btn-secondary">View Friend Suggestions</a>
+    {% endif %}
   </div>
 </main>
 {% endblock %}

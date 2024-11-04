@@ -1,40 +1,48 @@
-<!-- templates/blog/article.html -->
+<!-- blog/templates/blog/article.html -->
 {% extends 'blog/base.html' %}
-<h1>{{article.title}}</h1>
+
+<!-- display a context variable called articles -->
+
 {% block content %}
+<h1>{{article.title}}</h1>
+
 <main class="grid-container">
-
   <article class="featured">
-    {% if article.image_file.url %}
-    <img src="{{article.image_file.url}}" alt="{{article.image_file.url}}">
-    {% endif %}
 
+    <!-- <img src="{{article.image_url}}" alt="{{article.image_url}}"> -->
+    <img src="{{article.image_file.url}}" alt="{{article.image_file.url}}">
     <div>
       <h2>{{article.title}}</h2>
-      <strong>by {{article.author}} at {{article.published}}</strong>
+      <h3>by {{article.author}} at {{article.published}}</h3>
+
       <p>
         {{article.text}}
       </p>
-      {% if request.user.is_authenticated and request.user == article.user %}
-      <h3><a href="{% url 'update_article' article.pk %}">Update Article</a></h3>
-      {% endif %}
+
+      <h4>
+        <a href="{% url 'create_comment' article.pk %}">
+          Create a Comment</a>
+      </h4>
     </div>
   </article>
+
+  <!-- show the comments -->
   <div>
+    {% if article.get_comments %}
     <h2>Comments</h2>
-    <h3><a href="{% url 'create_comment' article.pk %}">Create a comment</a></h3>
-    <!-- Comments:
-    {{article.get_comments}} -->
+    <!-- call the get_comments method on the article object -->
+    <!-- {{article.get_comments}} -->
     {% for c in article.get_comments %}
-    <article>
-      <div>
-        <strong>by {{c.author}} at {{c.published}}</strong>
-        <p>
-          {{c.text}}
-          <a href="{% url 'delete_comment' c.pk %}">delete</a>
-      </div>
-    </article>
+    <div>
+      <strong>by {{c.author}} at {{c.published}}</strong>
+      <p>
+        {{c.text}}
+      </p>
+    </div>
     {% endfor %}
+    {% else %}
+    <h2>No Comments</h2>
+    {% endif %}
   </div>
 </main>
 {% endblock %}

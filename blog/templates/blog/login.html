@@ -1,5 +1,4 @@
-<!-- templates/blog/templates/base.html -->
-
+<!-- templates/blog/templates/login.html -->
 {% extends 'blog/base.html' %}
 {% block content %}
 <!-- This basic authentication form works.
@@ -12,4 +11,7 @@
   <input type="hidden" name="next" value="{% url 'all' %}">
   <input type="submit" value="Login">
 </form>
+
+<hr>
+Don't have an account? <a href="{% url 'register' %}">Register here</a>.
 {% endblock %}
