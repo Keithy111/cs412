@@ -10,6 +10,10 @@ from .forms import CreateProfileForm, UpdateProfileForm, CreateStatusMessageForm
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+
+
 
 class ShowAllProfiles(ListView):
     '''Display all Profile objects.'''
@@ -26,14 +30,36 @@ class ShowProfilePageView(DetailView):
 
 
 class CreateProfileView(CreateView):
-    '''A view to create a profile.'''
+    model = Profile
     form_class = CreateProfileForm
-    template_name = "mini_fb/create_profile_form.html"
+    template_name = 'mini_fb/create_profile_form.html'
 
     def get_success_url(self):
-        '''Redirect to the profile detail page.'''
-        return reverse('profile/update', kwargs={'pk': self.object.pk})
+        return reverse('show_profile', kwargs={'pk': self.object.pk})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.method == 'POST':
+            context['user_form'] = UserCreationForm(self.request.POST)
+        else:
+            context['user_form'] = UserCreationForm()
+        return context
+
+    def form_valid(self, form):
+        user_form = UserCreationForm(self.request.POST)
+        
+        if user_form.is_valid():
+            # Save the new user and log them in
+            user = user_form.save()
+            login(self.request, user)
+            
+            form.instance.user = user
+            
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(
+                self.get_context_data(form=form, user_form=user_form)
+            )
 
 class CreateStatusMessageView(LoginRequiredMixin, CreateView):
     '''A view to create a new status message.'''
