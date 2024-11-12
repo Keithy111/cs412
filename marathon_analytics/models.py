@@ -32,6 +32,18 @@ class Result(models.Model):
         '''Return a string representation of this model instance.'''
         return f'{self.first_name} {self.last_name} ({self.city}, {self.state}), {self.time_finish}'
     
+    def get_runners_passed(self):
+        '''Return the number of runners passed by this runner.'''
+        started_first = Result.objects.filter(start_time_of_day__lt=self.start_time_of_day)
+        passed = started_first.filter(finish_time_of_day__gt=self.finish_time_of_day)
+        return len(passed)
+        
+    def get_runners_passed_by(self):
+        '''Return the number of runners who passed this runner.'''
+        started_later = Result.objects.filter(start_time_of_day__gt=self.start_time_of_day)
+        passed_by = started_later.filter(finish_time_of_day__lt=self.finish_time_of_day)
+        return len(passed_by)
+    
 def load_data():
     '''Function to load data records from CSV file into Django model instances.'''
     filename = '/Users/keithyeung/Downloads/2023_chicago_results.csv'
