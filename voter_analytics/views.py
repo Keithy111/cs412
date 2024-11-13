@@ -141,7 +141,6 @@ class VoterGraphsView(ListView):
         # Get election participation bar chart
         context['election_participation_histogram'] = self.create_election_participation_histogram(queryset)
 
-        # Additional context data
         context['years'] = range(1913, 2006)
         context['voter_scores'] = range(1, 6)
         context['party_affiliations'] = Voter.objects.values_list('party_affiliation', flat=True).distinct()
