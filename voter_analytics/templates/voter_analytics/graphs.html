@@ -12,12 +12,11 @@
 
     <div class="container">
       <div class="row">
-        <!-- Filter form -->
         <form method="get">
           <div class="form-group">
             <label for="party">Party Affiliation:</label>
             <select name="party_affiliation" id="party">
-              <option value="">-- Select Party Affiliation --</option>
+              <option value="">Select</option>
               {% for affiliation in party_affiliations %}
               <option value="{{ affiliation }}">{{ affiliation }}</option>
               {% endfor %}
@@ -27,7 +26,7 @@
           <div class="form-group">
             <label for="min_dob">Min Date of Birth:</label>
             <select name="min_dob" id="min_dob">
-              <option value="">-- Select Minimum Year --</option>
+              <option value="">Select</option>
               {% for year in years %}
               <option value="{{ year }}">{{ year }}</option>
               {% endfor %}
@@ -37,7 +36,7 @@
           <div class="form-group">
             <label for="max_dob">Max Date of Birth:</label>
             <select name="max_dob" id="max_dob">
-              <option value="">-- Select Maximum Year --</option>
+              <option value="">Select</option>
               {% for year in years %}
               <option value="{{ year }}">{{ year }}</option>
               {% endfor %}
@@ -47,7 +46,7 @@
           <div class="form-group">
             <label for="score">Voter Score:</label>
             <select name="voter_score" id="score">
-              <option value="">-- Select Voter Score --</option>
+              <option value="">Select</option>
               {% for score in voter_scores %}
               <option value="{{ score }}">{{ score }}</option>
               {% endfor %}
@@ -55,7 +54,6 @@
           </div>
 
           <div class="checkbox-group">
-            <label>Specific Elections:</label>
             <label><input type="checkbox" name="v20state" value="true"> Voted in 2020 State</label>
             <label><input type="checkbox" name="v21town" value="true"> Voted in 2021 Town</label>
             <label><input type="checkbox" name="v21primary" value="true"> Voted in 2021 Primary</label>
@@ -67,7 +65,6 @@
         </form>
       </div>
 
-      <!-- Graphs -->
       <div class="graph" id="birth-year-histogram">{{ birth_year_histogram|safe }}</div>
       <div class="graph" id="party-affiliation-pie">{{ party_affiliation_pie|safe }}</div>
       <div class="graph" id="election-participation-histogram">{{ election_participation_histogram|safe }}</div>
