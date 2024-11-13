@@ -95,27 +95,22 @@ class VoterGraphsView(ListView):
       queryset = super().get_queryset()
       filters = {}
 
-      # Filter by party affiliation if provided
       party_affiliation = self.request.GET.get('party_affiliation')
       if party_affiliation:
           filters['party_affiliation'] = party_affiliation
 
-      # Filter by minimum date of birth
       min_dob = self.request.GET.get('min_dob')
       if min_dob:
           filters['date_of_birth__gte'] = date(int(min_dob), 1, 1)
 
-      # Filter by maximum date of birth
       max_dob = self.request.GET.get('max_dob')
       if max_dob:
           filters['date_of_birth__lte'] = date(int(max_dob), 12, 31)
 
-      # Filter by voter score if provided
       voter_score = self.request.GET.get('voter_score')
       if voter_score:
           filters['voter_score'] = int(voter_score)
 
-      # Filter election participation based on query parameters
       election_fields = {
           'v20state': 'v20state',
           'v21town': 'v21town',
@@ -124,7 +119,6 @@ class VoterGraphsView(ListView):
           'v23town': 'v23town'
       }
       
-      # Use Q objects to dynamically add election participation filters
       election_query = Q()
       for param, field in election_fields.items():
           if self.request.GET.get(param) == 'true':
