@@ -2,7 +2,12 @@ body {
   background-color: lightgrey;
 }
 
-h1, h2, h3, footer,header, p {
+h1,
+h2,
+h3,
+footer,
+header,
+p {
   font-family: verdana;
   color: rgb(40, 40, 138);
 }
@@ -19,23 +24,26 @@ h1, h2, h3, footer,header, p {
 } */
 
 table {
-  width: 90%; 
+  width: 90%;
   max-width: 1000px;
   margin-left: 25px;
   border-collapse: collapse;
-  text-decoration:none;
+  text-decoration: none;
 }
 
-td, th {
+td,
+th {
   padding: 10px;
   color: rgb(40, 40, 138);
   font-family: verdana;
-  text-align: left; /* Align text in cells */
+  text-align: left;
+  /* Align text in cells */
 }
 
 /* Optionally, remove margins on td */
 td {
-  margin: 0; /* Avoids spacing issues */
+  margin: 0;
+  /* Avoids spacing issues */
 }
 
 
@@ -43,7 +51,8 @@ nav ul {
   text-align: center;
 }
 
-nav ul a, .container{
+nav ul a,
+.container {
   font-family: verdana;
   color: rgb(40, 40, 138);
   width: 90%;
@@ -53,6 +62,7 @@ nav ul a, .container{
   transition: max-width 0.3s ease;
   list-style-type: none;
 }
+
 li {
   list-style-type: none;
 }
@@ -82,7 +92,7 @@ li {
 }
 
 h4 a {
-  font-family:verdana;
+  font-family: verdana;
   display: inline-block;
   color: rgb(40, 40, 138);
   padding: 10px 20px;

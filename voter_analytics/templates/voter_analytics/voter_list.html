@@ -1,0 +1,112 @@
+{% extends 'voter_analytics/base.html' %}
+
+{% block content %}
+
+<h2>Voter List</h2>
+
+<div class="container">
+  <div class="row">
+    <!-- Filter form -->
+    <form method="get">
+      <div class="form-group">
+        <label for="party">Party Affiliation:</label>
+        <select name="party_affiliation" id="party">
+          <option value="">-- Select Party Affiliation --</option>
+          {% for affiliation in party_affiliations %}
+          <option value="{{ affiliation }}">{{ affiliation }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="min_dob">Min Date of Birth:</label>
+        <select name="min_dob" id="min_dob">
+          <option value="">-- Select Minimum Year --</option>
+          {% for year in years %}
+          <option value="{{ year }}">{{ year }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="max_dob">Max Date of Birth:</label>
+        <select name="max_dob" id="max_dob">
+          <option value="">-- Select Maximum Year --</option>
+          {% for year in years %}
+          <option value="{{ year }}">{{ year }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="score">Voter Score:</label>
+        <select name="voter_score" id="score">
+          <option value="">-- Select Voter Score --</option>
+          {% for score in voter_scores %}
+          <option value="{{ score }}">{{ score }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="checkbox-group">
+        <label>Specific Elections:</label>
+        <label><input type="checkbox" name="v20state" value="true"> Voted in 2020 State</label>
+        <label><input type="checkbox" name="v21town" value="true"> Voted in 2021 Town</label>
+        <label><input type="checkbox" name="v21primary" value="true"> Voted in 2021 Primary</label>
+        <label><input type="checkbox" name="v22general" value="true"> Voted in 2022 General</label>
+        <label><input type="checkbox" name="v23town" value="true"> Voted in 2023 Town</label>
+      </div>
+
+      <button type="submit">Apply Filters</button>
+    </form>
+  </div>
+
+  <div class="row">
+    <!-- Voter table -->
+    <table>
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Street Address</th>
+          <th>Date of Birth</th>
+          <th>Party Affiliation</th>
+          <th>Voter Score</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for voter in voters %}
+        <tr>
+          <td>{{ voter.first_name }}</td>
+          <td>{{ voter.last_name }}</td>
+          <td>{{ voter.street_number }} {{ voter.street_name }}</td>
+          <td>{{ voter.date_of_birth }}</td>
+          <td>{{ voter.party_affiliation }}</td>
+          <td>{{ voter.voter_score }}</td>
+          <td><a href="{% url 'voter' voter.pk %}">Details</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row">
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="pagination">
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}">Next</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

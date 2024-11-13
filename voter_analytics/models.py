@@ -1,4 +1,6 @@
 from django.db import models
+import csv
+
 
 # Create your models here.
 class Voter(models.Model):
@@ -30,40 +32,40 @@ class Voter(models.Model):
   v23town = models.BooleanField(default=False)   # Participated in the 2023 town election
   
   # Voter Score
-  voter_score = models.IntegerField(default=0)  # Calculated based on participation in past elections
+  voter_score = models.IntegerField()  # Calculated based on participation in past elections
+
+  def __str__(self):
+    '''Return a string representation of this model instance.'''
+    return f'{self.first_name} {self.last_name} {self.zip_code}'
   
-  def load_data():
-    '''Function to load data records from CSV file into Django model instances.'''
-    filename = '/Users/keithyeung/Downloads/newton_voters.csv'
-    f = open(filename)
-    f.readline()
+def load_data():
+  '''Function to load data records from CSV file into Django model instances.'''
+  filename = '/Users/keithyeung/Downloads/newton_voters.csv'
+  f = open(filename)
+  f.readline()
 
-    for line in f:
-      fields = line.split(',')
+  with open(filename, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)
+        for row in reader:
+            voter = Voter(
+                last_name=row[1],
+                first_name=row[2],
+                street_number=int(row[3]),
+                street_name=row[4],
+                apartment_number=row[5],
+                zip_code=int(row[6]),
+                date_of_birth=row[7],
+                date_of_registration=row[8],
+                party_affiliation=row[9],
+                precinct_number=row[10],
+                v20state=row[11].strip().lower() == 'true',
+                v21town=row[12].strip().lower() == 'true',
+                v21primary=row[13].strip().lower() == 'true',
+                v22general=row[14].strip().lower() == 'true',
+                v23town=row[15].strip().lower() == 'true',
+                voter_score=int(row[16])
+            )
 
-      try:
-        voter = Voter(last_name=fields[0],
-                first_name=fields[1],
-                street_number=fields[2],
-                street_name=fields[3],
-                apartment_number=fields[4],
-                zip_code=fields[5],
-                
-                date_of_birth=fields[6],
-                date_of_registration=fields[7],
-                
-                party_affiliation=fields[8],
-                precinct_number=fields[9],
-                
-                v20state=fields[10],
-                v21town=fields[11],
-                v21primary=fields[12],
-                v22general=fields[13],
-                v23town=fields[14],
-                
-                voter_score=fields[15])
-        voter.save()
-        print(f'Created result: {voter}')
-      except:
-        print(f"skipped: {fields}")
-    print(f'Done. Created {len(Voter.objects.all())} Voters.')
+            voter.save()
+            print(f'Created voter: {voter}')
