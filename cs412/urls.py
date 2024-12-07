@@ -31,6 +31,7 @@ urlpatterns = [
     path("mini_fb/", include ("mini_fb.urls")), ##hw 5
     path("marathon_analytics/", include("marathon_analytics.urls")),
     path("voter_analytics/", include("voter_analytics.urls")), ## hw 10
+    path("project/", include("project.urls")), ## final project
 
 ] 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
