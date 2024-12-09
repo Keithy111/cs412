@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 
 # Create your models here.
 
@@ -8,6 +10,8 @@ class User(models.Model):
     dob = models.DateField()
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.username
@@ -22,7 +26,7 @@ class Category(models.Model):
 
 
 class Expense(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="expenses")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True, related_name="expenses")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
@@ -34,7 +38,7 @@ class Expense(models.Model):
 
 
 class Budget(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="budgets")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="budgets", default=1)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True, related_name="budgets")
     total_budget = models.DecimalField(max_digits=10, decimal_places=2)
     start_date = models.DateField()

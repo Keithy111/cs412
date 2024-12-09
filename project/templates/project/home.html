@@ -1,0 +1,63 @@
+{% extends 'project/base.html' %}
+
+{% block title %}Finance Tracker - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8 offset-md-2">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h2 class="mb-0">Welcome to Finance Tracker</h2>
+      </div>
+      <div class="card-body">
+        <p class="lead">Take control of your personal finances with our comprehensive tracking tool.</p>
+
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Expense Categories</h5>
+                <p class="card-text">Organize and track your spending by categories.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'project:categories' %}" class="btn btn-primary">View Categories</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">Login to View</a>
+                <a href="{% url 'register' %}" class="btn btn-secondary">Sign Up</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Expense Report</h5>
+                <p class="card-text">Detailed breakdown of your expenses over time.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'project:expense_report' %}" class="btn btn-primary">View Report</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">Login to View</a>
+                <a href="{% url 'register' %}" class="btn btn-secondary">Sign Up</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Budget Analysis</h5>
+                <p class="card-text">Track your budgets and spending limits.</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'project:budget_analysis' %}" class="btn btn-primary">View Analysis</a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">Login to View</a>
+                <a href="{% url 'register' %}" class="btn btn-secondary">Sign Up</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
