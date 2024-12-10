@@ -1,3 +1,8 @@
+# Author: Keith Yeung 
+# Email: keithy@bu.edu 
+# project/urls.py
+# routing of my project application
+
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views

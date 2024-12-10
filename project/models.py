@@ -1,3 +1,8 @@
+# Author: Keith Yeung 
+# Email: keithy@bu.edu 
+# project/models.py
+# creating the models for my project application
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save

@@ -1,3 +1,8 @@
+# Author: Keith Yeung 
+# Email: keithy@bu.edu 
+# project/forms.py
+# This module defines forms for handling the project application, 
+
 from django import forms
 from .models import Profile, Category, Expense, Budget
 from django.core.exceptions import ValidationError
