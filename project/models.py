@@ -49,10 +49,8 @@ class Budget(models.Model):
     total_expenses = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), editable=False)
 
     def calculate_total_expenses(self):
-        """
-        Calculate total expenses for this budget's category and profile
-        within the budget period.
-        """
+        """Calculate total expenses for this budget's category and profile within the budget period."""
+
         expenses = Expense.objects.filter(
             category=self.category,
             profile=self.profile,
@@ -61,9 +59,8 @@ class Budget(models.Model):
         return expenses
 
     def update_budget_metrics(self):
-        """
-        Update total expenses and remaining budget.
-        """
+        """Update total expenses and remaining budget."""
+
         # Calculate total expenses
         self.total_expenses = self.calculate_total_expenses()
         
@@ -71,9 +68,8 @@ class Budget(models.Model):
         self.remaining_budget = max(self.total_budget - self.total_expenses, Decimal('0.00'))
 
     def save(self, *args, **kwargs):
-        """
-        Override save method to update budget metrics before saving.
-        """
+        """Override save method to update budget metrics before saving."""
+        
         self.update_budget_metrics()
         super().save(*args, **kwargs)
 

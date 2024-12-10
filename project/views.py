@@ -1,3 +1,9 @@
+# Author: Keith Yeung 
+# Email: keithy@bu.edu 
+# project/views.py
+# views.py file showcases a robust Django application supporting features like user registration, 
+# profile management, category and expense tracking, and budget analysis.
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -18,9 +24,14 @@ import random
 
 
 def hello_page(request):
+    """Render a simple welcome page."""
+
     return render(request, 'project/hello_page.html')
 
 def budget_analysis_view(request):
+    """Display a detailed budget analysis for all budgets.
+    Calculates total expenses, remaining budgets, and whether a budget is overspent."""
+
     budgets = Budget.objects.all()  # Or any filtering logic
     budget_analysis = []
 
@@ -36,6 +47,8 @@ def budget_analysis_view(request):
     return render(request, 'project/budget_analysis.html', {'budget_analysis': budget_analysis})
 
 class CustomUserCreationForm(UserCreationForm):
+    """Custom user creation form with additional fields for email, first name, and last name."""
+
     username = forms.CharField(max_length=150)
     email = forms.EmailField()
     first_name = forms.CharField(max_length=150)
@@ -46,6 +59,8 @@ class CustomUserCreationForm(UserCreationForm):
         fields = UserCreationForm.Meta.fields + ('email', 'first_name', 'last_name')
 
 def register(request):
+    """Handle user registration by creating a new user and associated profile."""
+
     if request.method == 'POST':
         user_form = CustomUserCreationForm(request.POST)
         profile_form = ProfileForm(request.POST)
@@ -76,6 +91,8 @@ def register(request):
 
 # User login view using Django's built-in LoginView
 class CustomLoginView(LoginView):
+    """Custom login view using Django's built-in LoginView."""
+
     template_name = 'project/login.html'
     authentication_form = AuthenticationForm
 
@@ -85,14 +102,18 @@ class CustomLoginView(LoginView):
 
 # User logout view using Django's built-in LogoutView
 class CustomLogoutView(LogoutView):
+    """Custom logout view using Django's built-in LogoutView."""
+
     next_page = reverse_lazy('project:home')
 
 
 def home(request):
+    """Render the home page with a randomly selected YouTube video embedded."""
+
     # List of YouTube video URLs to display randomly
     video_urls = [
-        "https://youtu.be/T_776Cwvejs?si=W14llzdnmyVQmmpu",  # Example video 1
-        "https://youtu.be/IfpAjsytwy0?si=3qwttQbvsl_edTZt",   # Example video 2
+        "https://youtu.be/T_776Cwvejs?si=W14llzdnmyVQmmpu",  
+        "https://youtu.be/IfpAjsytwy0?si=3qwttQbvsl_edTZt",   
         "https://youtu.be/NEzqHbtGa9U?si=9GagkrN5g6KRVfXq",
         "https://youtu.be/_vecpj_CRLw?si=zsQEXN0--OubwfGv",
         "https://youtu.be/N2aODJWw7Xw?si=Q0fIoSEzhcbJlDxg",
@@ -109,6 +130,8 @@ def home(request):
     return render(request, 'project/home.html', {'random_video_id': video_id})
 
 class CategoryListView(LoginRequiredMixin, ListView):
+    """Display a list of categories associated with the logged-in user's profile."""
+
     model = Category
     template_name = 'project/categories.html'
     context_object_name = 'categories'
@@ -117,6 +140,8 @@ class CategoryListView(LoginRequiredMixin, ListView):
         return Category.objects.filter(profile=self.request.user.project_profile)
 
 class ExpenseReportView(ListView):
+    """Display an expense report filtered by category or date range."""
+
     model = Expense
     template_name = 'project/expense_report.html'
 
@@ -154,6 +179,8 @@ class ExpenseReportView(ListView):
 
 
 class BudgetAnalysisView(LoginRequiredMixin, ListView):
+    """Display a detailed analysis of budgets for the logged-in user's profile."""
+
     model = Budget
     template_name = 'project/budget_analysis.html'
 
@@ -198,9 +225,9 @@ class BudgetAnalysisView(LoginRequiredMixin, ListView):
         context['category_expenses'] = category_expenses
         return context
 
-
-    
 class ExpenseCreateView(LoginRequiredMixin, CreateView):
+    """Handle the creation of a new expense for the logged-in user's profile."""
+
     model = Expense
     form_class = ExpenseForm
     template_name = 'project/add_expense.html'
@@ -235,9 +262,7 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
         return response
 
     def update_budget(self, expense):
-        """
-        Update the budget related to this expense.
-        """
+        """Update the budget related to this expense."""
         budget = expense.budget  # Get the associated budget
         
         # Update the budget metrics
@@ -252,6 +277,8 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
         return context
 
 class ExpenseUpdateView(LoginRequiredMixin, UpdateView):
+    """Handle the updating of an expense for the logged-in user's profile."""
+
     model = Expense
     fields = ['category', 'amount', 'description', 'date']
     template_name = 'project/edit_expense.html'
@@ -265,6 +292,8 @@ class ExpenseUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 class ExpenseDeleteView(LoginRequiredMixin, DeleteView):
+    """Handle the deletion of an expense for the logged-in user's profile."""
+
     model = Expense
     template_name = 'project/delete_expense.html'
     
@@ -279,6 +308,8 @@ class ExpenseDeleteView(LoginRequiredMixin, DeleteView):
         return expense
     
 class CategoryCreateView(LoginRequiredMixin, CreateView):
+    """Handle the creation of a new category for the logged-in user's profile."""
+
     model = Category
     form_class = CategoryForm
     template_name = 'project/add_category.html'
@@ -301,6 +332,8 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
 
 
 class CategoryUpdateView(LoginRequiredMixin, UpdateView):
+    """Handle the updating of a category for the logged-in user's profile."""
+
     model = Category
     fields = ['name', 'description']
     template_name = 'project/edit_category.html'
@@ -315,6 +348,8 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 class CategoryDeleteView(LoginRequiredMixin, DeleteView):
+    """Handle the deletion of a category for the logged-in user's profile."""
+
     model = Category
     template_name = 'project/delete_category.html'
     
@@ -329,6 +364,8 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
         return category
 
 class BudgetCreateView(LoginRequiredMixin, CreateView):
+    """Handle the creation of a new budget for the logged-in user's profile."""
+
     model = Budget
     form_class = BudgetForm
     template_name = 'project/create_budget.html'
@@ -355,6 +392,8 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
         return context
 
 class BudgetUpdateView(LoginRequiredMixin, UpdateView):
+    """View for updating a budget instance. Only accessible to logged-in userswho own the budget."""
+
     model = Budget
     form_class = BudgetForm
     template_name = 'project/edit_budget.html'
@@ -369,6 +408,8 @@ class BudgetUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 class BudgetDeleteView(LoginRequiredMixin, DeleteView):
+    """View for deleting a budget instance. Only accessible to logged-in users who own the budget."""
+
     model = Budget
     template_name = 'project/delete_budget.html'
     
