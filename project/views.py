@@ -17,6 +17,21 @@ from django.core.exceptions import PermissionDenied
 def hello_page(request):
     return render(request, 'project/hello_page.html')
 
+def budget_analysis_view(request):
+    budgets = Budget.objects.all()  # Or any filtering logic
+    budget_analysis = []
+
+    for budget in budgets:
+        analysis = {
+            'budget': budget,
+            'total_expenses': budget.total_expenses,
+            'remaining_budget': budget.remaining_budget,
+            'overspent': budget.total_expenses > budget.total_budget,
+        }
+        budget_analysis.append(analysis)
+
+    return render(request, 'project/budget_analysis.html', {'budget_analysis': budget_analysis})
+
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(max_length=150)
     email = forms.EmailField()
@@ -91,7 +106,6 @@ def home(request):
     """Home page view for the finance tracker application"""
     return render(request, 'project/home.html')
 
-
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = 'project/categories.html'
@@ -136,16 +150,16 @@ class BudgetAnalysisView(ListView):
         budget_analysis = []
 
         for budget in budgets:
-            total_expenses = Expense.objects.filter(
-                category=budget.category,
-                date__range=[budget.start_date, budget.end_date]
-            ).aggregate(total=Sum('amount'))['total'] or 0
+            # Use the model's `calculate_total_expenses()` method to calculate total expenses
+            total_expenses = budget.calculate_total_expenses()
+
+            # Ensure `remaining_budget` is updated from the model
+            budget.update_budget_metrics()
 
             budget_analysis.append({
                 'budget': budget,
                 'total_expenses': total_expenses,
                 'remaining_budget': budget.remaining_budget,
-                'overspent': total_expenses > budget.total_budget
             })
 
         context['budget_analysis'] = budget_analysis
@@ -161,6 +175,10 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
         try:
             profile = self.request.user.project_profile  
             form.instance.profile = profile
+            
+            # Associate the expense with the budget (this assumes the form has a budget field)
+            form.instance.budget = Budget.objects.get(profile=profile, category__name="Transportation")
+            
         except ObjectDoesNotExist:
             form.add_error(None, "Profile does not exist for the logged-in user.")
             return self.form_invalid(form)
@@ -172,6 +190,18 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
         self.update_budget(self.object)
         
         return response
+
+    def update_budget(self, expense):
+        """
+        Update the budget related to this expense.
+        """
+        budget = expense.budget  # Get the associated budget
+        
+        # Update the budget metrics
+        budget.update_budget_metrics()
+        
+        # Save the updated budget with updated metrics
+        budget.save()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -275,5 +305,32 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Create New Budget'  # Set the title for the template
         return context
+
+class BudgetUpdateView(LoginRequiredMixin, UpdateView):
+    model = Budget
+    form_class = BudgetForm
+    template_name = 'project/edit_budget.html'
     
+    def get_success_url(self):
+        return reverse_lazy('project:budget_analysis')  # Redirect to the budget list view
+
+    def form_valid(self, form):
+        # Ensure the budget is associated with the logged-in user's profile
+        if form.instance.profile != self.request.user.project_profile:
+            raise PermissionDenied
+        return super().form_valid(form)
+
+class BudgetDeleteView(LoginRequiredMixin, DeleteView):
+    model = Budget
+    template_name = 'project/delete_budget.html'
+    
+    def get_success_url(self):
+        return reverse_lazy('project:budget_analysis')  # Redirect to the budget list view
+
+    def get_object(self, queryset=None):
+        budget = super().get_object(queryset)
+        # Ensure the budget belongs to the logged-in user
+        if budget.profile != self.request.user.project_profile:
+            raise PermissionDenied
+        return budget
 

@@ -34,15 +34,3 @@ class BudgetForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs={'type': 'date'}),
             'total_budget': forms.NumberInput(attrs={'step': '0.01'})
         }
-
-    def clean(self):
-        cleaned_data = super().clean()
-        start_date = cleaned_data.get('start_date')
-        end_date = cleaned_data.get('end_date')
-
-        if start_date and end_date:
-            if start_date > end_date:
-                raise ValidationError("Start date must be before end date")
-            if start_date < timezone.now().date():
-                raise ValidationError("Start date cannot be in the past")
-        return cleaned_data

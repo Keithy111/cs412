@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from decimal import Decimal
-
+from django.db.models import Sum
 
 # Create your models here.
 
@@ -46,27 +46,36 @@ class Budget(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     remaining_budget = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+    total_expenses = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'), editable=False)
 
-    def save(self, *args, **kwargs):
-        '''
-        Calculate remaining_budget based on total expenses in the category
-        during the budget period
-        '''
-        # Calculate total expenses for this budget's category and profile
-        total_expenses = Expense.objects.filter(
+    def calculate_total_expenses(self):
+        """
+        Calculate total expenses for this budget's category and profile
+        within the budget period.
+        """
+        expenses = Expense.objects.filter(
             category=self.category,
             profile=self.profile,
-            date__gte=self.start_date,
-            date__lte=self.end_date
-        ).aggregate(total=models.Sum('amount'))['total'] or Decimal('0.00')
+        ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+        
+        return expenses
 
+    def update_budget_metrics(self):
+        """
+        Update total expenses and remaining budget.
+        """
+        # Calculate total expenses
+        self.total_expenses = self.calculate_total_expenses()
+        
         # Calculate remaining budget
-        self.remaining_budget = max(self.total_budget - total_expenses, Decimal('0.00'))
+        self.remaining_budget = max(self.total_budget - self.total_expenses, Decimal('0.00'))
 
+    def save(self, *args, **kwargs):
+        """
+        Override save method to update budget metrics before saving.
+        """
+        self.update_budget_metrics()
         super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"User: {self.profile.user.username} | Category: {self.category} | Budget: ${self.total_budget}"
 
     @property
     def is_overspent(self):

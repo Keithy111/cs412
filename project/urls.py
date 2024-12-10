@@ -16,6 +16,8 @@ urlpatterns = [
     path('expenses/<int:pk>/edit/', views.ExpenseUpdateView.as_view(), name='edit_expense'),
     path('expenses/<int:pk>/delete/', views.ExpenseDeleteView.as_view(), name='delete_expense'),
     path('budgets/analysis/', views.BudgetAnalysisView.as_view(), name='budget_analysis'),
+    path('budget/<int:pk>/edit/', views.BudgetUpdateView.as_view(), name='edit_budget'),
+    path('budget/<int:pk>/delete/', views.BudgetDeleteView.as_view(), name='delete_budget'),
     path('create_budget/', views.BudgetCreateView.as_view(), name='create_budget'),
     path('register/', views.register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='project/login.html'), name='login'),
