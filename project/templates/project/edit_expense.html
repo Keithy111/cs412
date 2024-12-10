@@ -3,28 +3,101 @@
 {% block title %}Edit Expense | Finance Tracker{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12">
-      <h1 class="mb-4">Edit Expense</h1>
-
-      <!-- Expense Form -->
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title">Edit Expense Details</h5>
-        </div>
-        <div class="card-body">
-          <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }} <!-- Render the form fields as paragraphs -->
-            <div class="form-group">
-              <button type="submit" class="btn btn-primary">Save Changes</button>
-              <a href="{% url 'project:expense_report' %}" class="btn btn-secondary ms-2">Cancel</a>
-            </div>
-          </form>
-        </div>
-      </div>
+<div class="container py-5">
+  <h1 class="mb-4 text-center">Edit Expense</h1>
+  <form method="POST" class="shadow-lg p-4 rounded bg-light">
+    {% csrf_token %}
+    <div class="form-group mb-3">
+      {{ form.as_p }} <!-- Render the form fields as paragraphs -->
     </div>
-  </div>
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary px-4 py-2">Save Changes</button>
+      <a href="{% url 'project:expense_report' %}" class="btn btn-secondary px-4 py-2">Cancel</a>
+    </div>
+  </form>
 </div>
+
+<style>
+  /* Set the background color of the page */
+  body {
+    background-color: #96bfee;
+  }
+
+  /* Container for the form */
+  .container {
+    max-width: 600px;
+    /* Limits the width of the form */
+  }
+
+  /* Form styling */
+  form {
+    background-color: #f9f9f9d3;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+  }
+
+  /* Heading styling */
+  h1 {
+    color: #333;
+    font-family: 'Arial', sans-serif;
+  }
+
+  /* Form group styling for spacing */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  /* Button styling */
+  button,
+  .btn-secondary {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    border: none;
+  }
+
+  /* Save changes button */
+  .btn-primary {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+
+  /* Cancel button */
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+
+  /* Input fields styling */
+  input,
+  textarea {
+    border-radius: 5px;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  input:focus,
+  textarea:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+</style>
 {% endblock %}
