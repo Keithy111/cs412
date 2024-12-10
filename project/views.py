@@ -165,6 +165,7 @@ class BudgetAnalysisView(LoginRequiredMixin, ListView):
 
         budget_analysis = []
         monthly_expenses = {}
+        category_expenses = {}
 
         # Aggregate expenses for the last 365 days, done once here.
         expenses = Expense.objects.filter(profile=self.request.user.project_profile, date__gte=timezone.now() - timedelta(days=365))
@@ -182,9 +183,19 @@ class BudgetAnalysisView(LoginRequiredMixin, ListView):
                 'remaining_budget': budget.remaining_budget,
                 'overspent': budget.total_expenses > budget.total_budget,
             })
+        
+        for expense in expenses:
+            # Format as 'YYYY-MM' for monthly aggregation
+            month = expense.date.strftime('%Y-%m')
+            monthly_expenses[month] = monthly_expenses.get(month, 0) + expense.amount
+
+            # Aggregate by category
+            category_name = expense.category.name if expense.category else "Uncategorized"
+            category_expenses[category_name] = category_expenses.get(category_name, 0) + expense.amount
 
         context['budget_analysis'] = budget_analysis
         context['monthly_expenses'] = monthly_expenses
+        context['category_expenses'] = category_expenses
         return context
 
 

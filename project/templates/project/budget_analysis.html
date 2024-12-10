@@ -10,7 +10,6 @@
         <h3 class="mb-0">Budget Analysis</h3>
       </div>
       <div class="card-body">
-        <!-- Button to create a new budget -->
         <a href="{% url 'project:create_budget' %}" class="btn btn-success mb-3">Create Budget</a>
 
         <table class="table table-striped" aria-describedby="budget-analysis-summary">
@@ -20,7 +19,7 @@
               <th>Total Budget</th>
               <th>Total Expenses</th>
               <th>Remaining Budget</th>
-              <th>Actions</th> <!-- Removed the Status column -->
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -31,7 +30,6 @@
               <td>${{ analysis.total_expenses|floatformat:2 }}</td>
               <td>${{ analysis.remaining_budget|floatformat:2 }}</td>
               <td>
-                <!-- Edit and Delete buttons -->
                 <div class="btn-group" role="group">
                   <a href="{% url 'project:edit_budget' analysis.budget.id %}" class="btn btn-sm btn-warning">Edit</a>
                   <form action="{% url 'project:delete_budget' analysis.budget.id %}" method="post"
@@ -44,40 +42,56 @@
             </tr>
             {% empty %}
             <tr>
-              <td colspan="5" class="text-center">No budget analysis available</td> <!-- Updated column span to 5 -->
+              <td colspan="5" class="text-center">No budget analysis available</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
 
-        <!-- Monthly Expenses Bar Chart -->
-        <h4 class="mt-4">Monthly Expenses</h4>
-        <canvas id="expenseChart" width="400" height="200"></canvas>
+        <!-- Toggle Chart Buttons -->
+        <div class="d-flex justify-content-between">
+          <button id="showBarChart" class="btn btn-primary">Show Bar Chart</button>
+          <button id="showPieChart" class="btn btn-secondary">Show Pie Chart</button>
+        </div>
+
+        <!-- Monthly Expenses Charts -->
+        <div id="chartContainer" class="mt-4">
+          <canvas id="barChart" width="400" height="200" style="display: block;"></canvas>
+          <canvas id="pieChart" width="400" height="200" style="display: none;"></canvas>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Use json_script to safely render the monthly_expenses variable -->
+{{ category_expenses|json_script:"category-expenses-data" }}
 {{ monthly_expenses|json_script:"monthly-expenses-data" }}
 
 <script>
-  const ctx = document.getElementById('expenseChart').getContext('2d');
+  // Fetch the data from the template context
+  const categoryExpenses = JSON.parse(document.getElementById('category-expenses-data').textContent);
   const monthlyExpenses = JSON.parse(document.getElementById('monthly-expenses-data').textContent);
-  const labels = Object.keys(monthlyExpenses);
-  const data = Object.values(monthlyExpenses);
 
-  const expenseChart = new Chart(ctx, {
-    type: 'bar',  // Change chart type to bar
+  const barCtx = document.getElementById('barChart').getContext('2d');
+  const pieCtx = document.getElementById('pieChart').getContext('2d');
+
+  const barLabels = Object.keys(monthlyExpenses);
+  const barData = Object.values(monthlyExpenses);
+
+  const pieLabels = Object.keys(categoryExpenses);
+  const pieData = Object.values(categoryExpenses);
+
+  // Bar Chart
+  const barChart = new Chart(barCtx, {
+    type: 'bar',
     data: {
-      labels: labels,
+      labels: barLabels,
       datasets: [{
         label: 'Monthly Expenses',
-        data: data,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Add a background color to the bars
+        data: barData,
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1
       }]
@@ -91,6 +105,50 @@
       }
     }
   });
-</script>
 
+  // Pie Chart
+  const pieChart = new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+      labels: pieLabels,
+      datasets: [{
+        data: pieData,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true
+    }
+  });
+
+  // Toggle Chart Display
+  const barChartElement = document.getElementById('barChart');
+  const pieChartElement = document.getElementById('pieChart');
+
+  document.getElementById('showBarChart').addEventListener('click', () => {
+    barChartElement.style.display = 'block';
+    pieChartElement.style.display = 'none';
+  });
+
+  document.getElementById('showPieChart').addEventListener('click', () => {
+    barChartElement.style.display = 'none';
+    pieChartElement.style.display = 'block';
+  });
+</script>
 {% endblock %}
