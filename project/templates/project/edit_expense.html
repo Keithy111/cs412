@@ -1,0 +1,30 @@
+{% extends 'project/base.html' %}
+
+{% block title %}Edit Expense | Finance Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="mb-4">Edit Expense</h1>
+
+      <!-- Expense Form -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Edit Expense Details</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }} <!-- Render the form fields as paragraphs -->
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+              <a href="{% url 'project:expense_report' %}" class="btn btn-secondary ms-2">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

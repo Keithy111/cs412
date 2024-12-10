@@ -1,0 +1,28 @@
+{% extends 'project/base.html' %}
+
+{% block title %}Add New Category | Finance Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="mb-4">Add New Category</h1>
+
+      <!-- Category Form -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Create a New Category</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Save Category</button>
+            <a href="{% url 'project:categories' %}" class="btn btn-secondary ms-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

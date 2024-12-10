@@ -1,0 +1,16 @@
+{% extends 'project/base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Login to your account</h2>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="next" value="{% url 'project:home' %}">
+    <button type="submit" class="btn btn-primary">Login</button>
+  </form>
+  <p>Don't have an account? <a href="{% url 'project:register' %}">Register</a></p>
+</div>
+{% endblock %}

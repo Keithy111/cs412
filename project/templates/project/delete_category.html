@@ -1,0 +1,26 @@
+{% extends 'project/base.html' %}
+
+{% block title %}Delete Category | Finance Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="mb-4">Delete Category</h1>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Are you sure you want to delete the category "{{ object.name }}"?</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <a href="{% url 'project:categories' %}" class="btn btn-secondary ms-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
