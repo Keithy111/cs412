@@ -12,6 +12,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
+from django.utils import timezone
+from datetime import timedelta
+import random
 
 
 def hello_page(request):
@@ -55,23 +58,6 @@ def register(request):
             profile = profile_form.save(commit=False)
             profile.user = user
             profile.save()
-            
-            # Prepopulate default categories for the user with descriptions
-            default_categories = [
-                {'name': 'Dining Out', 'description': "This category covers all expenses related to eating out at restaurants, cafes, fast-food outlets, or ordering takeout and delivery services. It's perfect for tracking your spending on meals enjoyed outside your home."},
-                {'name': 'Shopping', 'description': 'This category includes all purchases for clothing, accessories, electronics, household items, and other non-essential goods. It helps you monitor discretionary spending and manage your budget for retail therapy.'},
-                {'name': 'Transportation', 'description': "This category tracks expenses related to getting around, including public transit fares, gas, ride-shares, car maintenance, parking fees, and other travel-related costs. It's ideal for managing your commute and travel budget."},
-                {'name': 'Utilities', 'description': 'This category includes essential monthly bills such as electricity, water, gas, internet, phone services, and trash collection. It helps you keep track of recurring household expenses and plan your budget effectively.'},
-                {'name': 'Groceries', 'description': 'This category covers all spending on food and household essentials purchased from supermarkets, grocery stores, or markets. It helps you track your essential living expenses and plan your meals within budget.'},
-                {'name': 'Rent', 'description': 'This category tracks your monthly housing payments, whether for an apartment, house, or shared living space. It helps you stay on top of one of your most significant recurring expenses.'}
-            ]
-            
-            for category_data in default_categories:
-                # Create categories if they don't already exist
-                Category.objects.get_or_create(
-                    name=category_data['name'],
-                    defaults={'description': category_data['description']}
-                )
 
             # Automatically log in the user after successful registration
             login(request, user)
@@ -103,8 +89,24 @@ class CustomLogoutView(LogoutView):
 
 
 def home(request):
-    """Home page view for the finance tracker application"""
-    return render(request, 'project/home.html')
+    # List of YouTube video URLs to display randomly
+    video_urls = [
+        "https://youtu.be/T_776Cwvejs?si=W14llzdnmyVQmmpu",  # Example video 1
+        "https://youtu.be/IfpAjsytwy0?si=3qwttQbvsl_edTZt",   # Example video 2
+        "https://youtu.be/NEzqHbtGa9U?si=9GagkrN5g6KRVfXq",
+        "https://youtu.be/_vecpj_CRLw?si=zsQEXN0--OubwfGv",
+        "https://youtu.be/N2aODJWw7Xw?si=Q0fIoSEzhcbJlDxg",
+        "https://youtu.be/a-vmZpnpze0?si=UVa5krQHAhCBGf8Q"
+    ]
+    
+    # Pick a random video URL
+    random_video_url = random.choice(video_urls)
+
+    # Extract the video ID for embedding
+    video_id = random_video_url.split('youtu.be/')[1].split('?')[0]
+
+    # Pass the video ID to the template
+    return render(request, 'project/home.html', {'random_video_id': video_id})
 
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
@@ -121,12 +123,17 @@ class ExpenseReportView(ListView):
     def get_queryset(self):
         profile = self.request.user.project_profile
         queryset = Expense.objects.filter(profile=profile)
+        
+        # Get filters from request
         category_filter = self.request.GET.get('category')
         date_start = self.request.GET.get('date_start')
         date_end = self.request.GET.get('date_end')
 
+        # Apply category filter
         if category_filter:
             queryset = queryset.filter(category__name=category_filter)
+        
+        # Apply date range filter
         if date_start and date_end:
             queryset = queryset.filter(date__range=[date_start, date_end])
 
@@ -134,36 +141,53 @@ class ExpenseReportView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        profile = self.request.user.project_profile
+        
+        # Get categories associated with the user's profile
+        context['categories'] = Category.objects.filter(profile=profile)
+
+        # Calculate total expenses
         context['total_expenses'] = self.get_queryset().aggregate(
             total=Sum('amount'))['total'] or 0
-        context['categories'] = Category.objects.all()
+
         return context
 
 
-class BudgetAnalysisView(ListView):
+class BudgetAnalysisView(LoginRequiredMixin, ListView):
     model = Budget
     template_name = 'project/budget_analysis.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        budgets = Budget.objects.all()
+
+        # Filter budgets by the logged-in user's profile
+        budgets = Budget.objects.filter(profile=self.request.user.project_profile)
+
         budget_analysis = []
+        monthly_expenses = {}
 
+        # Aggregate expenses for the last 365 days, done once here.
+        expenses = Expense.objects.filter(profile=self.request.user.project_profile, date__gte=timezone.now() - timedelta(days=365))
+        for expense in expenses:
+            month = expense.date.strftime('%Y-%m')  # Format as 'YYYY-MM'
+            monthly_expenses[month] = monthly_expenses.get(month, 0) + expense.amount
+
+        # Iterate over budgets of the logged-in user only
         for budget in budgets:
-            # Use the model's `calculate_total_expenses()` method to calculate total expenses
             total_expenses = budget.calculate_total_expenses()
-
-            # Ensure `remaining_budget` is updated from the model
             budget.update_budget_metrics()
-
             budget_analysis.append({
                 'budget': budget,
                 'total_expenses': total_expenses,
                 'remaining_budget': budget.remaining_budget,
+                'overspent': budget.total_expenses > budget.total_budget,
             })
 
         context['budget_analysis'] = budget_analysis
+        context['monthly_expenses'] = monthly_expenses
         return context
+
+
     
 class ExpenseCreateView(LoginRequiredMixin, CreateView):
     model = Expense
@@ -171,13 +195,21 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
     template_name = 'project/add_expense.html'
     success_url = reverse_lazy('project:expense_report')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['profile'] = self.request.user.project_profile  # Pass the logged-in user's profile to the form
+        return kwargs
+
     def form_valid(self, form):
         try:
+            # Attempt to retrieve the profile for the logged-in user
             profile = self.request.user.project_profile  
+            
+            # Associate the expense with the user's profile
             form.instance.profile = profile
             
-            # Associate the expense with the budget (this assumes the form has a budget field)
-            form.instance.budget = Budget.objects.get(profile=profile, category__name="Transportation")
+            # # Associate the expense with the budget (assuming a "Transportation" category exists)
+            # form.instance.budget = Budget.objects.get(profile=profile, category__name="Transportation")
             
         except ObjectDoesNotExist:
             form.add_error(None, "Profile does not exist for the logged-in user.")
@@ -186,8 +218,8 @@ class ExpenseCreateView(LoginRequiredMixin, CreateView):
         # Call the parent method to save the expense
         response = super().form_valid(form)
         
-        # Update budget after saving the expense
-        self.update_budget(self.object)
+        # # Update the budget after saving the expense
+        # self.update_budget(self.object)
         
         return response
 
@@ -243,8 +275,8 @@ class CategoryCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         try:
-            profile = self.request.user.project_profile
-            form.instance.profile = profile  # Assign profile to the category
+            profile = self.request.user.project_profile  # Ensure the user has a profile
+            form.instance.profile = profile  # Assign the profile to the budget instance
         except ObjectDoesNotExist:
             form.add_error(None, "Profile does not exist for the logged-in user.")
             return self.form_invalid(form)
@@ -290,6 +322,11 @@ class BudgetCreateView(LoginRequiredMixin, CreateView):
     form_class = BudgetForm
     template_name = 'project/create_budget.html'
     success_url = reverse_lazy('project:budget_analysis')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['profile'] = self.request.user.project_profile  # Pass the logged-in user's profile to the form
+        return kwargs
 
     def form_valid(self, form):
         try:

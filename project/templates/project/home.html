@@ -53,8 +53,27 @@
             </div>
           </div>
         </div>
+
+        <!-- Embedded YouTube Video Below the Table with Matching Width -->
+        <div class="mt-4">
+          <h5 class="text-center">Refresh to see different guides on budgeting!</h5>
+          <div class="row justify-content-center">
+            <div class="col-md-12">
+              <!-- Use the video ID passed from the view -->
+              <iframe class="w-100" height="500" src="https://www.youtube.com/embed/{{ random_video_id }}"
+                frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Footer Section -->
+<footer class="text-black text-center py-3 mt-4">
+  <p>&copy; 2024 Finance Tracker. All rights reserved.</p>
+</footer>
+
 {% endblock %}

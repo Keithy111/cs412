@@ -3,13 +3,17 @@
 {% block title %}Hello - Welcome{% endblock %}
 
 {% block content %}
-<div class="container text-center">
-  <h2>You have been logged out</h2>
-  <h1 class="mt-5">Welcome to the Finance Tracker!</h1>
-  <p>To get started, please either log in or register.</p>
-  <div class="mt-4">
-    <a href="{% url 'project:login' %}" class="btn btn-primary btn-lg">Login</a>
-    <a href="{% url 'project:register' %}" class="btn btn-success btn-lg">Register</a>
+<div class="container-fluid d-flex align-items-center justify-content-center min-vh-100">
+  <div class="text-center">
+    <h2>You have been logged out.</h2>
+    <h1 class="mt-5">Welcome to the Finance Tracker!</h1>
+    <p>To get started, please either log in or register.</p>
+    <div class="mt-4">
+      <a href="{% url 'project:login' %}" class="btn btn-primary btn-lg">Login</a>
+      <a href="{% url 'project:register' %}" class="btn btn-success btn-lg">Register</a>
+    </div>
   </div>
 </div>
+
+
 {% endblock %}

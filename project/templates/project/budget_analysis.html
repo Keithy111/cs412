@@ -20,8 +20,7 @@
               <th>Total Budget</th>
               <th>Total Expenses</th>
               <th>Remaining Budget</th>
-              <th>Status</th>
-              <th>Actions</th> <!-- Added a new column for Edit and Delete buttons -->
+              <th>Actions</th> <!-- Removed the Status column -->
             </tr>
           </thead>
           <tbody>
@@ -32,31 +31,66 @@
               <td>${{ analysis.total_expenses|floatformat:2 }}</td>
               <td>${{ analysis.remaining_budget|floatformat:2 }}</td>
               <td>
-                {% if analysis.is_overspent %}
-                <span class="badge bg-danger">Overspent</span>
-                {% else %}
-                <span class="badge bg-success">On Budget</span>
-                {% endif %}
-              </td>
-              <td>
                 <!-- Edit and Delete buttons -->
                 <div class="btn-group" role="group">
                   <a href="{% url 'project:edit_budget' analysis.budget.id %}" class="btn btn-sm btn-warning">Edit</a>
-                  <a href="{% url 'project:delete_budget' analysis.budget.id %}"
-                    class="btn btn-sm btn-danger">Delete</a>
-                  {% csrf_token %}
+                  <form action="{% url 'project:delete_budget' analysis.budget.id %}" method="post"
+                    style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                  </form>
                 </div>
               </td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="6" class="text-center">No budget analysis available</td>
+              <td colspan="5" class="text-center">No budget analysis available</td> <!-- Updated column span to 5 -->
             </tr>
             {% endfor %}
           </tbody>
         </table>
+
+        <!-- Monthly Expenses Bar Chart -->
+        <h4 class="mt-4">Monthly Expenses</h4>
+        <canvas id="expenseChart" width="400" height="200"></canvas>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Use json_script to safely render the monthly_expenses variable -->
+{{ monthly_expenses|json_script:"monthly-expenses-data" }}
+
+<script>
+  const ctx = document.getElementById('expenseChart').getContext('2d');
+  const monthlyExpenses = JSON.parse(document.getElementById('monthly-expenses-data').textContent);
+  const labels = Object.keys(monthlyExpenses);
+  const data = Object.values(monthlyExpenses);
+
+  const expenseChart = new Chart(ctx, {
+    type: 'bar',  // Change chart type to bar
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Monthly Expenses',
+        data: data,
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',  // Add a background color to the bars
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
 {% endblock %}
